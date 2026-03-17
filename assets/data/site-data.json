@@ -1,0 +1,132 @@
+{
+  "branding": {
+    "logoText": "MC",
+    "tagline": {
+      "de": "Türkische Speisen mit Eleganz",
+      "en": "Turkish cuisine with elegance",
+      "tr": "Zarafetle Türk mutfağı"
+    }
+  },
+  "about": {
+    "de": "Miss Catering steht für moderne türkische Küche, stilvolle Präsentation und flexible Event-Konzepte.",
+    "en": "Miss Catering stands for modern Turkish cuisine, stylish presentation and flexible event concepts.",
+    "tr": "Miss Catering; modern Türk mutfağı, şık sunum ve esnek organizasyon konseptleri demektir."
+  },
+  "team": [
+    {
+      "name": "Merve Yildiz",
+      "role": {"de": "Geschäftsführung", "en": "Founder", "tr": "Kurucu"},
+      "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "name": "Emre Kaya",
+      "role": {"de": "Küchenchef", "en": "Head Chef", "tr": "Şef"},
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "name": "Zeynep Arslan",
+      "role": {"de": "Eventplanung", "en": "Event Planning", "tr": "Etkinlik Planlama"},
+      "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80"
+    }
+  ],
+  "priceLists": [
+    {
+      "title": {"de": "Buffet Basic", "en": "Buffet Basic", "tr": "Açık Büfe Basic"},
+      "price": 18,
+      "unit": "person"
+    },
+    {
+      "title": {"de": "Buffet Premium", "en": "Buffet Premium", "tr": "Açık Büfe Premium"},
+      "price": 29,
+      "unit": "person"
+    },
+    {
+      "title": {"de": "Streetfood Teller", "en": "Streetfood Plate", "tr": "Streetfood Tabak"},
+      "price": 12,
+      "unit": "portion"
+    }
+  ],
+  "packages": [
+    {
+      "slug": "business",
+      "title": {"de": "Businesspaket", "en": "Business Package", "tr": "Business Paketi"},
+      "description": {
+        "de": "Für Meetings, Firmenlunch und Netzwerk-Events.",
+        "en": "For meetings, company lunches and networking events.",
+        "tr": "Toplantılar, şirket öğle yemekleri ve networking etkinlikleri için."
+      },
+      "basePricePerPerson": 16
+    },
+    {
+      "slug": "birthday",
+      "title": {"de": "Geburtstag", "en": "Birthday", "tr": "Doğum Günü"},
+      "description": {
+        "de": "Bunte Auswahl für private Feiern und Familienfeste.",
+        "en": "Colorful selection for private parties and family events.",
+        "tr": "Özel kutlamalar ve aile etkinlikleri için renkli seçenekler."
+      },
+      "basePricePerPerson": 19
+    },
+    {
+      "slug": "streetfood",
+      "title": {"de": "Streetfood", "en": "Streetfood", "tr": "Streetfood"},
+      "description": {
+        "de": "Schnell, modern und perfekt für Außenveranstaltungen.",
+        "en": "Fast, modern and perfect for outdoor events.",
+        "tr": "Hızlı, modern ve açık hava etkinlikleri için ideal."
+      },
+      "basePricePerPerson": 14
+    },
+    {
+      "slug": "wedding",
+      "title": {"de": "Hochzeit / Verlobung", "en": "Wedding / Engagement", "tr": "Düğün / Nişan"},
+      "description": {
+        "de": "Elegantes Festmenü für große Momente.",
+        "en": "Elegant celebration menu for big moments.",
+        "tr": "Özel anlar için zarif kutlama menüsü."
+      },
+      "basePricePerPerson": 32
+    }
+  ],
+  "catalog": {
+    "fingerfood": [
+      {"name": {"de": "Sigara Böreği", "en": "Crispy cheese rolls", "tr": "Sigara Böreği"}, "price": 2.5, "unit": "portion"},
+      {"name": {"de": "Mini Köfte Spieß", "en": "Mini kofte skewer", "tr": "Mini Köfte Şiş"}, "price": 3.5, "unit": "portion"},
+      {"name": {"de": "Falafel Bites", "en": "Falafel bites", "tr": "Falafel"}, "price": 2.8, "unit": "portion"}
+    ],
+    "starters": [
+      {"name": {"de": "Humus", "en": "Hummus", "tr": "Humus"}, "price": 3.5, "unit": "portion"},
+      {"name": {"de": "Haydari", "en": "Haydari", "tr": "Haydari"}, "price": 3.2, "unit": "portion"},
+      {"name": {"de": "Kisir", "en": "Kisir", "tr": "Kısır"}, "price": 3.8, "unit": "portion"}
+    ],
+    "mains": [
+      {"name": {"de": "Iskender", "en": "Iskender", "tr": "İskender"}, "price": 12.5, "unit": "person"},
+      {"name": {"de": "Adana Kebab", "en": "Adana kebab", "tr": "Adana Kebap"}, "price": 13.9, "unit": "person"},
+      {"name": {"de": "Vegetarische Dolma", "en": "Vegetarian dolma", "tr": "Vejetaryen Dolma"}, "price": 9.5, "unit": "person"}
+    ],
+    "desserts": [
+      {"name": {"de": "Baklava", "en": "Baklava", "tr": "Baklava"}, "price": 4.2, "unit": "portion"},
+      {"name": {"de": "Sütlaç", "en": "Rice pudding", "tr": "Sütlaç"}, "price": 3.9, "unit": "portion"},
+      {"name": {"de": "Künefe", "en": "Kunefe", "tr": "Künefe"}, "price": 5.5, "unit": "portion"}
+    ]
+  },
+  "gallery": [
+    {"title": "Buffet", "image": "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80"},
+    {"title": "Dessert", "image": "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=1200&q=80"},
+    {"title": "Event", "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80"},
+    {"title": "Streetfood", "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80"}
+  ],
+  "contact": {
+    "address": "Musterstraße 12, 50667 Köln",
+    "phone": "+49 123 456789",
+    "mail": "info@miss-catering.de"
+  },
+  "impressum": {
+    "company": "Miss Catering",
+    "owner": "Merve Yildiz",
+    "street": "Musterstraße 12",
+    "city": "50667 Köln",
+    "mail": "info@miss-catering.de",
+    "phone": "+49 123 456789"
+  }
+}
