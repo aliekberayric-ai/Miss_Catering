@@ -1,2 +1,109 @@
-<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Login</title><link rel="stylesheet" href="assets/css/styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body data-title="Admin Login"><header class="site-header" data-header></header><main class="page-shell"><div class="container"><div class="admin-box"><h1 class="page-title" id="page-title"></h1><p class="notice" id="login-info"></p><form id="login-form" class="form-grid"><input class="input" type="email" name="email" placeholder="E-Mail" required><input class="input" type="password" name="password" placeholder="Passwort" required><button class="btn btn-primary" type="submit">Login</button><p id="login-message"></p></form></div></div></main><footer class="site-footer" data-footer></footer><script type="module" src="assets/js/app.js"></script><script type="module" src="assets/js/login.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | Miss Catering</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+
+<body data-title="Admin Login">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo">
+      <div class="logo-box">MC</div>
+      <div>
+        <strong>Miss Catering</strong><br>
+        <small>Türkische Speisen mit Eleganz</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="index.html">Über uns</a>
+      <a href="staff.html">Mitarbeiter</a>
+      <a href="prices.html">Preislisten</a>
+      <a href="packages.html">Pakete</a>
+      <a href="menu.html">Menü</a>
+      <a href="gallery.html">Galerie</a>
+      <a href="contact.html">Kontaktformular</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+
+    <!-- Sprache -->
+    <div class="lang-switch">
+      <button>DE</button>
+      <button>EN</button>
+      <button>TR</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="page-shell">
+    <div class="container">
+
+      <div class="admin-box">
+        <h1>Admin Login</h1>
+
+        <p id="login-info">
+          Für echten Login bitte Supabase konfigurieren.
+        </p>
+
+        <form id="login-form">
+          <input 
+            type="email" 
+            name="email" 
+            placeholder="E-Mail" 
+            required 
+          />
+
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Passwort" 
+            required 
+          />
+
+          <button type="submit">Login</button>
+        </form>
+
+        <p id="login-message" style="color:red;"></p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <strong>Miss Catering</strong><br>
+        Türkische Speisen mit Eleganz
+      </div>
+
+      <div>
+        <strong>Kontaktformular</strong><br>
+        Musterstraße 12, 50667 Köln<br>
+        +49 123 456789<br>
+        info@miss-catering.de
+      </div>
+
+      <div>
+        <strong>Impressum</strong><br>
+        Merve Yildiz<br>
+        Musterstraße 12<br>
+        50667 Köln
+      </div>
+    </div>
+  </footer>
+
+  <!-- 🔥 WICHTIG: SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- APP SCRIPT -->
+  <script type="module" src="./assets/js/login.js"></script>
+
+</body>
+</html>
