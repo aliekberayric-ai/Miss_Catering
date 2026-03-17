@@ -22,7 +22,7 @@
           <div class="admin-topbar">
             <div>
               <h1>Admin Dashboard</h1>
-              <p>Hier bearbeitest du Pakete, Menü und Galerie direkt in Supabase.</p>
+              <p>Hier bearbeitest du Inhalte direkt in Supabase: Über uns, Kontakt, Impressum, Mitarbeiter, Preislisten, Pakete, Menü und Galerie.</p>
             </div>
             <button id="logoutBtn" class="btn btn-secondary">Logout</button>
           </div>
@@ -59,6 +59,34 @@
             <label>Telefon<input id="impressum-phone" type="text" placeholder="Telefon"></label>
           </div>
           <button id="saveImpressumBtn" class="btn btn-primary">Impressum speichern</button>
+        </section>
+
+        <section class="admin-box">
+          <div class="admin-section-head">
+            <div>
+              <h2>Mitarbeiter</h2>
+              <p>Name, Rolle in 3 Sprachen und Bild-URL bearbeiten.</p>
+            </div>
+            <button id="addTeamBtn" class="btn btn-secondary">+ Mitarbeiter hinzufügen</button>
+          </div>
+          <div id="team-admin-list" class="admin-card-list"></div>
+          <div class="admin-actions-row">
+            <button id="saveTeamBtn" class="btn btn-primary">Mitarbeiter speichern</button>
+          </div>
+        </section>
+
+        <section class="admin-box">
+          <div class="admin-section-head">
+            <div>
+              <h2>Preislisten</h2>
+              <p>Titel, Preis und Einheit bearbeiten.</p>
+            </div>
+            <button id="addPriceBtn" class="btn btn-secondary">+ Preis hinzufügen</button>
+          </div>
+          <div id="prices-admin-list" class="admin-card-list"></div>
+          <div class="admin-actions-row">
+            <button id="savePricesBtn" class="btn btn-primary">Preislisten speichern</button>
+          </div>
         </section>
 
         <section class="admin-box">
@@ -126,7 +154,7 @@
           <div class="admin-section-head">
             <div>
               <h2>Galerie</h2>
-              <p>Titel und Bild-URL frei bearbeiten. Später kann man das auch auf Storage erweitern.</p>
+              <p>Titel und Bild-URL frei bearbeiten.</p>
             </div>
             <button id="addGalleryBtn" class="btn btn-secondary">+ Bild hinzufügen</button>
           </div>
