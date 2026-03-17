@@ -18,44 +18,122 @@
       </div>
 
       <div id="admin-app" hidden>
-        <div class="admin-box">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
-            <h1>Admin Dashboard</h1>
+        <section class="admin-box">
+          <div class="admin-topbar">
+            <div>
+              <h1>Admin Dashboard</h1>
+              <p>Hier bearbeitest du Pakete, Menü und Galerie direkt in Supabase.</p>
+            </div>
             <button id="logoutBtn" class="btn btn-secondary">Logout</button>
           </div>
-          <p>Hier bearbeitest du jetzt die Inhalte direkt in Supabase.</p>
-        </div>
+        </section>
 
         <section class="admin-box">
           <h2>Über uns</h2>
-          <textarea id="about-de" rows="4" placeholder="Deutsch"></textarea>
-          <textarea id="about-en" rows="4" placeholder="English"></textarea>
-          <textarea id="about-tr" rows="4" placeholder="Türkçe"></textarea>
+          <div class="admin-form-grid admin-three-cols">
+            <label>Deutsch<textarea id="about-de" rows="4" placeholder="Deutsch"></textarea></label>
+            <label>English<textarea id="about-en" rows="4" placeholder="English"></textarea></label>
+            <label>Türkçe<textarea id="about-tr" rows="4" placeholder="Türkçe"></textarea></label>
+          </div>
           <button id="saveAboutBtn" class="btn btn-primary">Über uns speichern</button>
         </section>
 
         <section class="admin-box">
           <h2>Kontakt</h2>
-          <input id="contact-address" type="text" placeholder="Adresse">
-          <input id="contact-phone" type="text" placeholder="Telefon">
-          <input id="contact-mail" type="email" placeholder="E-Mail">
+          <div class="admin-form-grid admin-three-cols">
+            <label>Adresse<input id="contact-address" type="text" placeholder="Adresse"></label>
+            <label>Telefon<input id="contact-phone" type="text" placeholder="Telefon"></label>
+            <label>E-Mail<input id="contact-mail" type="email" placeholder="E-Mail"></label>
+          </div>
           <button id="saveContactBtn" class="btn btn-primary">Kontakt speichern</button>
         </section>
 
         <section class="admin-box">
           <h2>Impressum</h2>
-          <input id="impressum-company" type="text" placeholder="Firma">
-          <input id="impressum-owner" type="text" placeholder="Inhaber">
-          <input id="impressum-street" type="text" placeholder="Straße">
-          <input id="impressum-city" type="text" placeholder="Ort">
-          <input id="impressum-mail" type="email" placeholder="E-Mail">
-          <input id="impressum-phone" type="text" placeholder="Telefon">
+          <div class="admin-form-grid admin-three-cols">
+            <label>Firma<input id="impressum-company" type="text" placeholder="Firma"></label>
+            <label>Inhaber<input id="impressum-owner" type="text" placeholder="Inhaber"></label>
+            <label>Straße<input id="impressum-street" type="text" placeholder="Straße"></label>
+            <label>Ort<input id="impressum-city" type="text" placeholder="Ort"></label>
+            <label>E-Mail<input id="impressum-mail" type="email" placeholder="E-Mail"></label>
+            <label>Telefon<input id="impressum-phone" type="text" placeholder="Telefon"></label>
+          </div>
           <button id="saveImpressumBtn" class="btn btn-primary">Impressum speichern</button>
         </section>
 
         <section class="admin-box">
-          <h2>Pakete (Vorschau)</h2>
-          <div id="packages-preview"></div>
+          <div class="admin-section-head">
+            <div>
+              <h2>Pakete</h2>
+              <p>Business, Geburtstag, Streetfood, Hochzeit oder neue Pakete frei anlegen.</p>
+            </div>
+            <button id="addPackageBtn" class="btn btn-secondary">+ Paket hinzufügen</button>
+          </div>
+          <div id="packages-admin-list" class="admin-card-list"></div>
+          <div class="admin-actions-row">
+            <button id="savePackagesBtn" class="btn btn-primary">Pakete speichern</button>
+          </div>
+        </section>
+
+        <section class="admin-box">
+          <div class="admin-section-head">
+            <div>
+              <h2>Menü</h2>
+              <p>Fingerfood, Vorspeisen, Hauptgerichte und Desserts bearbeiten.</p>
+            </div>
+          </div>
+
+          <div class="admin-menu-groups">
+            <article class="admin-subpanel">
+              <div class="admin-section-head compact">
+                <h3>Fingerfood</h3>
+                <button class="btn btn-secondary admin-add-menu-item" data-category="fingerfood">+ Eintrag</button>
+              </div>
+              <div id="menu-fingerfood-list" class="admin-card-list"></div>
+            </article>
+
+            <article class="admin-subpanel">
+              <div class="admin-section-head compact">
+                <h3>Vorspeisen</h3>
+                <button class="btn btn-secondary admin-add-menu-item" data-category="starters">+ Eintrag</button>
+              </div>
+              <div id="menu-starters-list" class="admin-card-list"></div>
+            </article>
+
+            <article class="admin-subpanel">
+              <div class="admin-section-head compact">
+                <h3>Hauptgerichte</h3>
+                <button class="btn btn-secondary admin-add-menu-item" data-category="mains">+ Eintrag</button>
+              </div>
+              <div id="menu-mains-list" class="admin-card-list"></div>
+            </article>
+
+            <article class="admin-subpanel">
+              <div class="admin-section-head compact">
+                <h3>Desserts</h3>
+                <button class="btn btn-secondary admin-add-menu-item" data-category="desserts">+ Eintrag</button>
+              </div>
+              <div id="menu-desserts-list" class="admin-card-list"></div>
+            </article>
+          </div>
+
+          <div class="admin-actions-row">
+            <button id="saveMenuBtn" class="btn btn-primary">Menü speichern</button>
+          </div>
+        </section>
+
+        <section class="admin-box">
+          <div class="admin-section-head">
+            <div>
+              <h2>Galerie</h2>
+              <p>Titel und Bild-URL frei bearbeiten. Später kann man das auch auf Storage erweitern.</p>
+            </div>
+            <button id="addGalleryBtn" class="btn btn-secondary">+ Bild hinzufügen</button>
+          </div>
+          <div id="gallery-admin-list" class="admin-card-list"></div>
+          <div class="admin-actions-row">
+            <button id="saveGalleryBtn" class="btn btn-primary">Galerie speichern</button>
+          </div>
         </section>
 
         <section class="admin-box">
