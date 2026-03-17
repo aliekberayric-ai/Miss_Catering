@@ -171,3 +171,9 @@ button, input, textarea { font: inherit; }
 @media (max-width: 900px) {
   .admin-three-cols, .admin-two-cols { grid-template-columns: 1fr; }
 }
+
+
+.admin-span-2 { grid-column: span 2; }
+@media (max-width: 900px) {
+  .admin-span-2 { grid-column: span 1; }
+}
