@@ -1,2 +1,36 @@
-<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Über uns</title><link rel="stylesheet" href="assets/css/styles.css"></head>
-<body data-title="Über uns"><header class="site-header" data-header></header><main class="page-shell"><div class="container"><h1 class="page-title" id="page-title"></h1><div id="about-content"></div></div></main><footer class="site-footer" data-footer></footer><script type="module" src="assets/js/app.js"></script><script type="module">import { t } from './assets/js/i18n.js';import { renderAbout } from './assets/js/renderers.js';document.querySelector('#page-title').textContent=t('aboutTitle');renderAbout();</script></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Über uns | Miss Catering</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-title="Über uns">
+  <header class="site-header" data-header></header>
+
+  <main class="page-shell">
+    <div class="container">
+      <h1 class="page-title" id="page-title"></h1>
+      <section class="content-card" id="about-box"></section>
+    </div>
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { t } from "./assets/js/i18n.js";
+    import { loadSiteData, pickLang } from "./assets/js/data.js";
+
+    document.querySelector("#page-title").textContent = t("aboutTitle") || "Über uns";
+
+    const data = await loadSiteData();
+    document.querySelector("#about-box").innerHTML = `
+      <p>${pickLang(data.about)}</p>
+    `;
+  </script>
+</body>
+</html>
