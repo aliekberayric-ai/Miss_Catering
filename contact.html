@@ -1,2 +1,54 @@
-<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kontakt</title><link rel="stylesheet" href="assets/css/styles.css"></head>
-<body data-title="Kontakt"><header class="site-header" data-header></header><main class="page-shell"><div class="container"><h1 class="page-title" id="page-title"></h1><div class="contact-grid"><div class="contact-card"><h2>Miss Catering</h2><p>Türkisches Catering für Business, Geburtstage, Streetfood und Hochzeiten.</p><p>E-Mail: info@miss-catering.de<br>Telefon: +49 123 456789</p></div><div class="contact-card"><form id="contact-form" class="form-grid"><input class="input" type="text" name="name" placeholder="Name" required><input class="input" type="email" name="email" placeholder="E-Mail" required><input class="input" type="text" name="phone" placeholder="Telefon"><input class="input" type="text" name="subject" placeholder="Betreff"><textarea class="input" name="message" rows="6" placeholder="Nachricht" required></textarea><button class="btn btn-primary" type="submit" id="send-btn"></button></form></div></div></div></main><footer class="site-footer" data-footer></footer><script type="module" src="assets/js/app.js"></script><script type="module">import { t } from './assets/js/i18n.js';import { initContactForm } from './assets/js/contact.js';document.querySelector('#page-title').textContent=t('contactTitle');document.querySelector('#send-btn').textContent=t('contactSend');initContactForm();</script></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt | Miss Catering</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-title="Kontaktformular">
+  <header class="site-header" data-header></header>
+
+  <main class="page-shell">
+    <div class="container">
+      <h1 class="page-title">Kontaktformular</h1>
+
+      <div class="contact-grid">
+        <section class="content-card" id="contact-info-box"></section>
+
+        <section class="content-card">
+          <form class="contact-form">
+            <input type="text" placeholder="Name">
+            <input type="email" placeholder="E-Mail">
+            <input type="text" placeholder="Telefon">
+            <input type="text" placeholder="Betreff">
+            <textarea rows="6" placeholder="Nachricht"></textarea>
+            <button type="submit" class="btn btn-primary">Anfrage senden</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { loadSiteData } from "./assets/js/data.js";
+
+    const data = await loadSiteData();
+    const contact = data.contact || {};
+
+    document.querySelector("#contact-info-box").innerHTML = `
+      <h3>Miss Catering</h3>
+      <p>
+        ${contact.address || ""}<br>
+        ${contact.mail || ""}<br>
+        Telefon: ${contact.phone || ""}
+      </p>
+    `;
+  </script>
+</body>
+</html>
