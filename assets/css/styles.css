@@ -506,3 +506,26 @@ button.btn-secondary {
 .gallery-card h3 {
   margin: 0;
 }
+
+
+.contact-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+  gap:24px;
+  margin-top:24px;
+}
+
+.contact-form{
+  display:grid;
+  gap:14px;
+}
+
+.contact-form input,
+.contact-form textarea{
+  width:100%;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+  padding:14px 16px;
+}
