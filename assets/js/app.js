@@ -51,11 +51,17 @@ function buildHeader(data, lang) {
         <a href="login.html" class="admin-link">${labels.login}</a>
       </nav>
 
-      <div class="lang-switch">
-        <button data-lang="de" class="${lang === "de" ? "active" : ""}">DE</button>
-        <button data-lang="en" class="${lang === "en" ? "active" : ""}">EN</button>
-        <button data-lang="tr" class="${lang === "tr" ? "active" : ""}">TR</button>
-      </div>
+<div class="lang-switch">
+  <button data-lang="de">
+    <img src="assets/img/flags/de.svg" alt="DE">
+  </button>
+  <button data-lang="en">
+    <img src="assets/img/flags/en.svg" alt="EN">
+  </button>
+  <button data-lang="tr">
+    <img src="assets/img/flags/tr.svg" alt="TR">
+  </button>
+</div>     
     </div>
   `;
 }
