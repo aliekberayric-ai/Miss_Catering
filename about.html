@@ -1,36 +1,100 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Über uns | Miss Catering</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-<body data-title="Über uns">
-  <header class="site-header" data-header></header>
+/* ===== Über uns ===== */
+.content-card {
+  margin-top: 24px;
+}
 
-  <main class="page-shell">
-    <div class="container">
-      <h1 class="page-title" id="page-title"></h1>
-      <section class="content-card" id="about-box"></section>
-    </div>
-  </main>
+.content-card p {
+  margin: 0;
+  line-height: 1.6;
+}
 
-  <footer class="site-footer" data-footer></footer>
+/* ===== Preislisten ===== */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="assets/js/app.js"></script>
+.price-card h3 {
+  margin: 0 0 12px;
+}
 
-  <script type="module">
-    import { t } from "./assets/js/i18n.js";
-    import { loadSiteData, pickLang } from "./assets/js/data.js";
+.price-card p {
+  margin: 0;
+  font-weight: 700;
+  color: #ffd166;
+}
 
-    document.querySelector("#page-title").textContent = t("aboutTitle") || "Über uns";
+/* ===== Pakete ===== */
+.package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
 
-    const data = await loadSiteData();
-    document.querySelector("#about-box").innerHTML = `
-      <p>${pickLang(data.about)}</p>
-    `;
-  </script>
-</body>
-</html>
+.package-card h3 {
+  margin: 0 0 12px;
+}
+
+.package-card p {
+  margin: 0 0 14px;
+}
+
+.package-price {
+  color: #ffd166;
+  font-weight: 700;
+}
+
+/* ===== Mitarbeiter ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.team-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.team-card img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 18px;
+  flex-shrink: 0;
+}
+
+.team-card h3 {
+  margin: 0 0 8px;
+}
+
+.team-card p {
+  margin: 0;
+}
+
+/* ===== Buttons ===== */
+.btn,
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary,
+button.btn-primary {
+  background: linear-gradient(90deg, #ffcc4d, #ff9f43);
+  color: #222;
+}
+
+.btn-secondary,
+button.btn-secondary {
+  background: #2d6cdf;
+  color: #fff;
+}
