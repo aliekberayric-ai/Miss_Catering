@@ -264,6 +264,65 @@ function collectGalleryFromDom() {
   })).filter(item => item.title || item.image);
 }
 
+function collectHomeSectionsFromDom() {
+  return [...document.querySelectorAll('.home-section-editor-card')].map(card => ({
+    title: {
+      de: card.querySelector('[data-field="title-de"]').value,
+      en: card.querySelector('[data-field="title-en"]').value,
+      tr: card.querySelector('[data-field="title-tr"]').value
+    },
+    text: {
+      de: card.querySelector('[data-field="text-de"]').value,
+      en: card.querySelector('[data-field="text-en"]').value,
+      tr: card.querySelector('[data-field="text-tr"]').value
+    },
+    button: {
+      de: card.querySelector('[data-field="button-de"]').value,
+      en: card.querySelector('[data-field="button-en"]').value,
+      tr: card.querySelector('[data-field="button-tr"]').value
+    },
+    link: card.querySelector('[data-field="link"]').value,
+    image: card.querySelector('[data-field="image"]').value
+  }));
+}
+
+function renderHomeSectionsEditor(items = []) {
+  const root = document.querySelector('#home-sections-editor');
+  if (!root) return;
+
+  root.innerHTML = items.map((item, index) => `
+    <article class="admin-edit-card home-section-editor-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>Kachel ${index + 1}</h3>
+        <button type="button" class="btn btn-secondary remove-home-section-btn">Entfernen</button>
+      </div>
+
+      <div class="admin-grid">
+        <input data-field="title-de" type="text" placeholder="Titel DE" value="${escapeHtml(item.title?.de || '')}">
+        <input data-field="title-en" type="text" placeholder="Titel EN" value="${escapeHtml(item.title?.en || '')}">
+        <input data-field="title-tr" type="text" placeholder="Titel TR" value="${escapeHtml(item.title?.tr || '')}">
+      </div>
+
+      <div class="admin-grid">
+        <textarea data-field="text-de" rows="3" placeholder="Beschreibung DE">${escapeHtml(item.text?.de || '')}</textarea>
+        <textarea data-field="text-en" rows="3" placeholder="Beschreibung EN">${escapeHtml(item.text?.en || '')}</textarea>
+        <textarea data-field="text-tr" rows="3" placeholder="Beschreibung TR">${escapeHtml(item.text?.tr || '')}</textarea>
+      </div>
+
+      <div class="admin-grid">
+        <input data-field="button-de" type="text" placeholder="Button DE" value="${escapeHtml(item.button?.de || '')}">
+        <input data-field="button-en" type="text" placeholder="Button EN" value="${escapeHtml(item.button?.en || '')}">
+        <input data-field="button-tr" type="text" placeholder="Button TR" value="${escapeHtml(item.button?.tr || '')}">
+      </div>
+
+      <div class="admin-grid">
+        <input data-field="link" type="text" placeholder="Link, z.B. about.html" value="${escapeHtml(item.link || '')}">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+      </div>
+    </article>
+  `).join('');
+}
+
 async function renderOrders() {
   const list = document.querySelector('#orders-list');
   if (!list) return;
