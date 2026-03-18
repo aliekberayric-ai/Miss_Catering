@@ -7,35 +7,40 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body data-title="Preisliste">
+  <header class="site-header" data-header></header>
 
-<header class="site-header" data-header></header>
-
-<main class="page-shell">
-  <div class="container">
-    <h1 class="page-title">Preislisten</h1>
-    <div class="grid" id="price-grid"></div>
-  </div>
-</main>
-
-<footer class="site-footer" data-footer></footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="assets/js/app.js"></script>
-
-<script type="module">
-  import { loadSiteData, pickLang, money } from "./assets/js/data.js";
-
-  const data = await loadSiteData();
-
-  const grid = document.getElementById("price-grid");
-
-  grid.innerHTML = data.priceLists.map(item => `
-    <div class="card">
-      <h3>${pickLang(item.title)}</h3>
-      <p>${money(item.price)} pro ${item.unit}</p>
+  <main class="page-shell">
+    <div class="container">
+      <h1 class="page-title" id="page-title">Preislisten</h1>
+      <div class="price-grid" id="price-grid"></div>
     </div>
-  `).join("");
-</script>
+  </main>
 
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { t } from "./assets/js/i18n.js";
+    import { loadSiteData, pickLang, money } from "./assets/js/data.js";
+
+    document.querySelector("#page-title").textContent = t("pricesTitle") || "Preislisten";
+
+    const data = await loadSiteData();
+    const grid = document.getElementById("price-grid");
+
+    grid.innerHTML = (data.priceLists || []).map(item => {
+      const price = Number(item.price || 0);
+      const unit = item.unit || "Person";
+
+      return `
+        <article class="price-card">
+          <h3>${pickLang(item.title)}</h3>
+          <p>${money(price)} pro ${unit}</p>
+        </article>
+      `;
+    }).join("");
+  </script>
 </body>
 </html>
