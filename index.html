@@ -36,17 +36,7 @@
   <footer class="site-footer" data-footer></footer>
 
   <script type="module" src="assets/js/app.js"></script>
-  <script type="module">
-    import { t } from './assets/js/i18n.js';
-    import { renderHome } from './assets/js/renderers.js';
-
-    document.querySelector('#hero-badge').textContent = t('heroBadge');
-    document.querySelector('#hero-title').textContent = t('homeHeroTitle');
-    document.querySelector('#hero-text').textContent = t('homeHeroText');
-    document.querySelector('#hero-packages').textContent = t('ctaPackages');
-    document.querySelector('#hero-menu').textContent = t('ctaMenu');
-    document.querySelector('#home-sections-title').textContent = t('introCardsTitle');
-    renderHome();
-  </script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
