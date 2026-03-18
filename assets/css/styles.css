@@ -177,3 +177,50 @@ button, input, textarea { font: inherit; }
 @media (max-width: 900px) {
   .admin-span-2 { grid-column: span 1; }
 }
+
+/* ===== PAKETE GRID FIX ===== */
+
+.package-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:24px;
+  margin-top:24px;
+}
+
+.package-card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.18);
+  transition:0.3s;
+}
+
+.package-card:hover{
+  transform:translateY(-5px);
+}
+
+.package-card h3{
+  margin:0 0 12px;
+}
+
+.package-card p{
+  margin:0 0 14px;
+}
+
+.package-price{
+  color:#ffd166;
+  font-weight:700;
+}
+
+.btn{
+  padding:10px 16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:#f59e0b;
+  color:#fff;
+}
