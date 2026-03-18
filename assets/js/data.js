@@ -29,6 +29,7 @@ async function loadFromSupabase() {
         tr: 'Zarafetle Türk mutfağı'
       }
     },
+    homeSections: map.homeSections || [],
     about: map.about || {},
     team: map.team || [],
     priceLists: map.priceLists || [],
