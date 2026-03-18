@@ -611,7 +611,26 @@ button.btn-secondary {
   grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
   gap:24px;
 }
+.lang-switch button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.2);
+  background: transparent;
+  cursor: pointer;
+}
 
+.lang-switch img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lang-switch button.active {
+  outline: 2px solid #ffb347;
+}
 .footer-grid p{
   margin:10px 0 0;
   line-height:1.5;
