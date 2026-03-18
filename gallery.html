@@ -1,2 +1,39 @@
-<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Galerie</title><link rel="stylesheet" href="assets/css/styles.css"></head>
-<body data-title="Galerie"><header class="site-header" data-header></header><main class="page-shell"><div class="container"><h1 class="page-title" id="page-title"></h1><div class="gallery-grid" id="gallery-grid"></div></div></main><footer class="site-footer" data-footer></footer><script type="module" src="assets/js/app.js"></script><script type="module">import { t } from './assets/js/i18n.js';import { renderGallery } from './assets/js/renderers.js';document.querySelector('#page-title').textContent=t('galleryTitle');renderGallery();</script></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galerie | Miss Catering</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-title="Galerie">
+  <header class="site-header" data-header></header>
+
+  <main class="page-shell">
+    <div class="container">
+      <h1 class="page-title">Galerie</h1>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { loadSiteData } from "./assets/js/data.js";
+
+    const data = await loadSiteData();
+    const gallery = data.gallery || [];
+    const grid = document.getElementById("gallery-grid");
+
+    grid.innerHTML = gallery.map(item => `
+      <article class="gallery-card">
+        <img src="${item.image || ""}" alt="${item.title || "Galerie Bild"}">
+        <h3>${item.title || ""}</h3>
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>
