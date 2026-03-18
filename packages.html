@@ -7,41 +7,42 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body data-title="Pakete">
+  <header class="site-header" data-header></header>
 
-<header class="site-header" data-header></header>
-
-<main class="page-shell">
-  <div class="container">
-    <h1 class="page-title">Pakete</h1>
-    <div class="grid" id="package-grid"></div>
-  </div>
-</main>
-
-<footer class="site-footer" data-footer></footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="assets/js/app.js"></script>
-
-<script type="module">
-  import { loadSiteData, pickLang, money } from "./assets/js/data.js";
-
-  const data = await loadSiteData();
-  const grid = document.getElementById("package-grid");
-
-  grid.innerHTML = data.packages.map(pkg => `
-    <div class="card">
-      <h3>${pickLang(pkg.title)}</h3>
-      <p>${pickLang(pkg.description)}</p>
-      <p><strong>${money(pkg.price)} pro Person</strong></p>
-      <button onclick="openPackage('${pkg.slug}')">Paket öffnen</button>
+  <main class="page-shell">
+    <div class="container">
+      <h1 class="page-title" id="page-title">Pakete</h1>
+      <div class="package-grid" id="package-grid"></div>
     </div>
-  `).join("");
+  </main>
 
-  // Dummy Funktion (für später Popup)
-  window.openPackage = (slug) => {
-    alert("Paket öffnen: " + slug);
-  };
-</script>
+  <footer class="site-footer" data-footer></footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { loadSiteData, pickLang, money } from "./assets/js/data.js";
+
+    const data = await loadSiteData();
+    const grid = document.getElementById("package-grid");
+
+    grid.innerHTML = (data.packages || []).map(pkg => {
+      const price = Number(pkg.price ?? pkg.basePricePerPerson ?? 0);
+
+      return `
+        <article class="package-card">
+          <h3>${pickLang(pkg.title)}</h3>
+          <p>${pickLang(pkg.description)}</p>
+          <p class="package-price"><strong>${money(price)} pro Person</strong></p>
+          <button class="btn btn-primary" onclick="openPackage('${pkg.slug}')">Paket öffnen</button>
+        </article>
+      `;
+    }).join("");
+
+    window.openPackage = (slug) => {
+      window.location.href = `package-detail.html?slug=${encodeURIComponent(slug)}`;
+    };
+  </script>
 </body>
 </html>
