@@ -529,3 +529,90 @@ button.btn-secondary {
   color:#fff;
   padding:14px 16px;
 }
+.header-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  text-decoration:none;
+  color:#fff;
+}
+
+.brand-mark{
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:linear-gradient(135deg,#ffcc4d,#ff9f43);
+  color:#222;
+}
+
+.brand-text{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.brand-text span{
+  font-size:14px;
+  opacity:.9;
+}
+
+.main-nav{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.main-nav a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.admin-link{
+  opacity:.95;
+}
+
+.lang-switch{
+  display:flex;
+  gap:10px;
+}
+
+.lang-switch button{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  cursor:pointer;
+}
+
+.lang-switch button.active{
+  background:linear-gradient(135deg,#ffcc4d,#ff9f43);
+  color:#222;
+  border-color:transparent;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+  gap:24px;
+}
+
+.footer-grid p{
+  margin:10px 0 0;
+  line-height:1.5;
+}
