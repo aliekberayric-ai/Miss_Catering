@@ -3,35 +3,13 @@ import { getSession, isAdmin, logout } from './auth.js';
 import { getSupabaseClient } from './supabase.js';
 import { loadSiteData, clearSiteDataCache, pickLang } from './data.js';
 
-const emptyCatalog = () => ({ fingerfood: [], starters: [], mains: [], desserts: [] });
-const state = {
-  team: [],
-  priceLists: [],
-  packages: [],
-  catalog: emptyCatalog(),
-  gallery: []
-};
-
 function escapeHtml(text = '') {
-  return String(text).replace(/[&<>\"]/g, char => ({
+  return String(text).replace(/[&<>"]/g, char => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;'
   }[char]));
-}
-
-function pickText(item, key) {
-  return item?.[key] || '';
-}
-
-function slugify(value = '') {
-  return String(value)
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9äöüß\s-]/gi, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
 }
 
 function msg(text, isError = false) {
@@ -53,244 +31,106 @@ async function saveSection(sectionKey, payload) {
   clearSiteDataCache();
 }
 
-function teamCardTemplate(item = {}) {
+function teamCardTemplate(item = {}, index = 0) {
   return `
-    <article class="admin-editor-card team-editor-card">
-      <div class="admin-editor-top">
-        <strong>${escapeHtml(item.name || 'Neuer Mitarbeiter')}</strong>
-        <button type="button" class="btn btn-ghost remove-team-btn">Entfernen</button>
+    <article class="admin-edit-card team-editor-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${escapeHtml(item.name || `Mitarbeiter ${index + 1}`)}</h3>
+        <button type="button" class="btn btn-secondary remove-team-btn">Entfernen</button>
       </div>
-      <div class="admin-form-grid admin-three-cols">
-        <label>Name<input class="team-name" type="text" value="${escapeHtml(item.name || '')}" placeholder="Name"></label>
-        <label>Rolle DE<input class="team-role-de" type="text" value="${escapeHtml(item.role?.de || '')}" placeholder="Geschäftsführung"></label>
-        <label>Rolle EN<input class="team-role-en" type="text" value="${escapeHtml(item.role?.en || '')}" placeholder="Founder"></label>
-        <label>Rolle TR<input class="team-role-tr" type="text" value="${escapeHtml(item.role?.tr || '')}" placeholder="Kurucu"></label>
-        <label class="admin-span-2">Bild-URL<input class="team-image" type="text" value="${escapeHtml(item.image || '')}" placeholder="https://..."></label>
+      <div class="admin-grid">
+        <input data-field="name" type="text" placeholder="Name" value="${escapeHtml(item.name || '')}">
+        <input data-field="role-de" type="text" placeholder="Rolle DE" value="${escapeHtml(item.role?.de || '')}">
+        <input data-field="role-en" type="text" placeholder="Rolle EN" value="${escapeHtml(item.role?.en || '')}">
+        <input data-field="role-tr" type="text" placeholder="Rolle TR" value="${escapeHtml(item.role?.tr || '')}">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
     </article>
   `;
 }
 
-function priceCardTemplate(item = {}) {
+function priceCardTemplate(item = {}, index = 0) {
   return `
-    <article class="admin-editor-card price-editor-card">
-      <div class="admin-editor-top">
-        <strong>${escapeHtml(pickLang(item.title) || 'Neuer Preis')}</strong>
-        <button type="button" class="btn btn-ghost remove-price-btn">Entfernen</button>
+    <article class="admin-edit-card price-editor-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${escapeHtml(item.title?.de || `Preis ${index + 1}`)}</h3>
+        <button type="button" class="btn btn-secondary remove-price-btn">Entfernen</button>
       </div>
-      <div class="admin-form-grid admin-three-cols">
-        <label>Titel DE<input class="price-title-de" type="text" value="${escapeHtml(item.title?.de || '')}" placeholder="Buffet Basic"></label>
-        <label>Titel EN<input class="price-title-en" type="text" value="${escapeHtml(item.title?.en || '')}" placeholder="Buffet Basic"></label>
-        <label>Titel TR<input class="price-title-tr" type="text" value="${escapeHtml(item.title?.tr || '')}" placeholder="Açık Büfe Basic"></label>
-        <label>Preis<input class="price-value" type="number" step="0.01" value="${Number(item.price || 0)}"></label>
-        <label>Einheit
-          <select class="price-unit">
-            <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
-            <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
-            <option value="piece" ${item.unit === 'piece' ? 'selected' : ''}>Stück</option>
-          </select>
-        </label>
+      <div class="admin-grid">
+        <input data-field="title-de" type="text" placeholder="Titel DE" value="${escapeHtml(item.title?.de || '')}">
+        <input data-field="title-en" type="text" placeholder="Titel EN" value="${escapeHtml(item.title?.en || '')}">
+        <input data-field="title-tr" type="text" placeholder="Titel TR" value="${escapeHtml(item.title?.tr || '')}">
+        <input data-field="price" type="number" step="0.01" placeholder="Preis" value="${escapeHtml(item.price ?? '')}">
+        <select data-field="unit">
+          <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
+          <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
+        </select>
       </div>
     </article>
   `;
 }
 
-function packageCardTemplate(item = {}) {
+function packageCardTemplate(item = {}, index = 0) {
   return `
-    <article class="admin-editor-card package-editor-card">
-      <div class="admin-editor-top">
-        <strong>${escapeHtml(pickLang(item.title) || 'Neues Paket')}</strong>
-        <button type="button" class="btn btn-ghost remove-package-btn">Entfernen</button>
+    <article class="admin-edit-card package-editor-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${escapeHtml(item.title?.de || `Paket ${index + 1}`)}</h3>
+        <button type="button" class="btn btn-secondary remove-package-btn">Entfernen</button>
       </div>
-      <div class="admin-form-grid admin-two-cols">
-        <label>Slug<input class="pkg-slug" type="text" value="${escapeHtml(item.slug || '')}" placeholder="business"></label>
-        <label>Preis pro Person<input class="pkg-price" type="number" step="0.01" value="${Number(item.basePricePerPerson || 0)}"></label>
-        <label>Titel DE<input class="pkg-title-de" type="text" value="${escapeHtml(item.title?.de || '')}" placeholder="Businesspaket"></label>
-        <label>Titel EN<input class="pkg-title-en" type="text" value="${escapeHtml(item.title?.en || '')}" placeholder="Business Package"></label>
-        <label>Titel TR<input class="pkg-title-tr" type="text" value="${escapeHtml(item.title?.tr || '')}" placeholder="Business Paketi"></label>
-        <div></div>
-        <label>Beschreibung DE<textarea class="pkg-desc-de" rows="3" placeholder="Deutsch">${escapeHtml(item.description?.de || '')}</textarea></label>
-        <label>Beschreibung EN<textarea class="pkg-desc-en" rows="3" placeholder="English">${escapeHtml(item.description?.en || '')}</textarea></label>
-        <label>Beschreibung TR<textarea class="pkg-desc-tr" rows="3" placeholder="Türkçe">${escapeHtml(item.description?.tr || '')}</textarea></label>
+      <div class="admin-grid">
+        <input data-field="slug" type="text" placeholder="Slug" value="${escapeHtml(item.slug || '')}">
+        <input data-field="price" type="number" step="0.01" placeholder="Preis pro Person" value="${escapeHtml(item.price ?? item.basePricePerPerson ?? '')}">
+        <input data-field="title-de" type="text" placeholder="Titel DE" value="${escapeHtml(item.title?.de || '')}">
+        <input data-field="title-en" type="text" placeholder="Titel EN" value="${escapeHtml(item.title?.en || '')}">
+        <input data-field="title-tr" type="text" placeholder="Titel TR" value="${escapeHtml(item.title?.tr || '')}">
+      </div>
+      <div class="admin-grid">
+        <textarea data-field="desc-de" rows="3" placeholder="Beschreibung DE">${escapeHtml(item.description?.de || '')}</textarea>
+        <textarea data-field="desc-en" rows="3" placeholder="Beschreibung EN">${escapeHtml(item.description?.en || '')}</textarea>
+        <textarea data-field="desc-tr" rows="3" placeholder="Beschreibung TR">${escapeHtml(item.description?.tr || '')}</textarea>
       </div>
     </article>
   `;
 }
 
-function menuCardTemplate(item = {}, category = '') {
+function menuItemCardTemplate(item = {}, category = '', index = 0) {
   return `
-    <article class="admin-editor-card menu-editor-card" data-category="${category}">
-      <div class="admin-editor-top">
-        <strong>${escapeHtml(pickLang(item.name) || 'Neuer Menüpunkt')}</strong>
-        <button type="button" class="btn btn-ghost remove-menu-item-btn">Entfernen</button>
+    <article class="admin-edit-card menu-item-editor-card" data-category="${escapeHtml(category)}">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${escapeHtml(item.name?.de || `${category} ${index + 1}`)}</h3>
+        <button type="button" class="btn btn-secondary remove-menu-item-btn">Entfernen</button>
       </div>
-      <div class="admin-form-grid admin-three-cols">
-        <label>Name DE<input class="menu-name-de" type="text" value="${escapeHtml(item.name?.de || '')}" placeholder="Deutsch"></label>
-        <label>Name EN<input class="menu-name-en" type="text" value="${escapeHtml(item.name?.en || '')}" placeholder="English"></label>
-        <label>Name TR<input class="menu-name-tr" type="text" value="${escapeHtml(item.name?.tr || '')}" placeholder="Türkçe"></label>
-        <label>Preis<input class="menu-price" type="number" step="0.01" value="${Number(item.price || 0)}"></label>
-        <label>Einheit
-          <select class="menu-unit">
-            <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
-            <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
-            <option value="piece" ${item.unit === 'piece' ? 'selected' : ''}>Stück</option>
-          </select>
-        </label>
+      <div class="admin-grid">
+        <input data-field="name-de" type="text" placeholder="Name DE" value="${escapeHtml(item.name?.de || '')}">
+        <input data-field="name-en" type="text" placeholder="Name EN" value="${escapeHtml(item.name?.en || '')}">
+        <input data-field="name-tr" type="text" placeholder="Name TR" value="${escapeHtml(item.name?.tr || '')}">
+        <input data-field="price" type="number" step="0.01" placeholder="Preis" value="${escapeHtml(item.price ?? '')}">
+        <select data-field="unit">
+          <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
+          <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
+        </select>
       </div>
     </article>
   `;
 }
 
-function galleryCardTemplate(item = {}) {
+function galleryCardTemplate(item = {}, index = 0) {
   return `
-    <article class="admin-editor-card gallery-editor-card">
-      <div class="admin-editor-top">
-        <strong>${escapeHtml(item.title || 'Neues Bild')}</strong>
-        <button type="button" class="btn btn-ghost remove-gallery-btn">Entfernen</button>
+    <article class="admin-edit-card gallery-editor-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${escapeHtml(item.title || `Bild ${index + 1}`)}</h3>
+        <button type="button" class="btn btn-secondary remove-gallery-btn">Entfernen</button>
       </div>
-      <div class="admin-form-grid admin-two-cols">
-        <label>Titel<input class="gallery-title" type="text" value="${escapeHtml(item.title || '')}" placeholder="Buffet"></label>
-        <label>Bild-URL<input class="gallery-image" type="text" value="${escapeHtml(item.image || '')}" placeholder="https://..."></label>
-      </div>
-      <div class="gallery-preview-wrap">
-        ${item.image ? `<img class="gallery-preview-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || '')}">` : '<div class="gallery-preview-empty">Noch keine Bildvorschau</div>'}
+      <div class="admin-grid">
+        <input data-field="title" type="text" placeholder="Titel" value="${escapeHtml(item.title || '')}">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
     </article>
   `;
 }
 
-function renderCards(selector, items, template) {
-  const root = document.querySelector(selector);
-  if (!root) return;
-  root.innerHTML = items.length ? items.map(template).join('') : '<p class="notice">Noch keine Einträge.</p>';
-}
-
-function renderTeamEditor() {
-  renderCards('#team-admin-list', state.team, teamCardTemplate);
-}
-
-function renderPricesEditor() {
-  renderCards('#prices-admin-list', state.priceLists, priceCardTemplate);
-}
-
-function renderPackagesEditor() {
-  renderCards('#packages-admin-list', state.packages, packageCardTemplate);
-}
-
-function renderMenuEditor() {
-  const categories = [
-    ['fingerfood', '#menu-fingerfood-list'],
-    ['starters', '#menu-starters-list'],
-    ['mains', '#menu-mains-list'],
-    ['desserts', '#menu-desserts-list']
-  ];
-  categories.forEach(([category, selector]) => {
-    renderCards(selector, state.catalog?.[category] || [], item => menuCardTemplate(item, category));
-  });
-}
-
-function renderGalleryEditor() {
-  renderCards('#gallery-admin-list', state.gallery, galleryCardTemplate);
-}
-
-function collectTeamFromDom() {
-  return Array.from(document.querySelectorAll('.team-editor-card')).map(card => ({
-    name: card.querySelector('.team-name').value.trim(),
-    role: {
-      de: card.querySelector('.team-role-de').value.trim(),
-      en: card.querySelector('.team-role-en').value.trim(),
-      tr: card.querySelector('.team-role-tr').value.trim()
-    },
-    image: card.querySelector('.team-image').value.trim()
-  })).filter(item => item.name || item.image || item.role.de || item.role.en || item.role.tr);
-}
-
-function collectPricesFromDom() {
-  return Array.from(document.querySelectorAll('.price-editor-card')).map(card => ({
-    title: {
-      de: card.querySelector('.price-title-de').value.trim(),
-      en: card.querySelector('.price-title-en').value.trim(),
-      tr: card.querySelector('.price-title-tr').value.trim()
-    },
-    price: Number(card.querySelector('.price-value').value || 0),
-    unit: card.querySelector('.price-unit').value
-  })).filter(item => item.title.de || item.title.en || item.title.tr);
-}
-
-function collectPackagesFromDom() {
-  return Array.from(document.querySelectorAll('.package-editor-card')).map(card => {
-    const deTitle = card.querySelector('.pkg-title-de').value.trim();
-    return {
-      slug: slugify(card.querySelector('.pkg-slug').value || deTitle),
-      basePricePerPerson: Number(card.querySelector('.pkg-price').value || 0),
-      title: {
-        de: deTitle,
-        en: card.querySelector('.pkg-title-en').value.trim(),
-        tr: card.querySelector('.pkg-title-tr').value.trim()
-      },
-      description: {
-        de: card.querySelector('.pkg-desc-de').value.trim(),
-        en: card.querySelector('.pkg-desc-en').value.trim(),
-        tr: card.querySelector('.pkg-desc-tr').value.trim()
-      }
-    };
-  }).filter(item => item.title.de || item.title.en || item.title.tr);
-}
-
-function collectMenuFromDom() {
-  const catalog = emptyCatalog();
-  document.querySelectorAll('.menu-editor-card').forEach(card => {
-    const category = card.dataset.category;
-    const item = {
-      name: {
-        de: card.querySelector('.menu-name-de').value.trim(),
-        en: card.querySelector('.menu-name-en').value.trim(),
-        tr: card.querySelector('.menu-name-tr').value.trim()
-      },
-      price: Number(card.querySelector('.menu-price').value || 0),
-      unit: card.querySelector('.menu-unit').value
-    };
-    if (catalog[category] && (item.name.de || item.name.en || item.name.tr)) {
-      catalog[category].push(item);
-    }
-  });
-  return catalog;
-}
-
-function collectGalleryFromDom() {
-  return Array.from(document.querySelectorAll('.gallery-editor-card')).map(card => ({
-    title: card.querySelector('.gallery-title').value.trim(),
-    image: card.querySelector('.gallery-image').value.trim()
-  })).filter(item => item.title || item.image);
-}
-
-function collectHomeSectionsFromDom() {
-  return [...document.querySelectorAll('.home-section-editor-card')].map(card => ({
-    title: {
-      de: card.querySelector('[data-field="title-de"]').value,
-      en: card.querySelector('[data-field="title-en"]').value,
-      tr: card.querySelector('[data-field="title-tr"]').value
-    },
-    text: {
-      de: card.querySelector('[data-field="text-de"]').value,
-      en: card.querySelector('[data-field="text-en"]').value,
-      tr: card.querySelector('[data-field="text-tr"]').value
-    },
-    button: {
-      de: card.querySelector('[data-field="button-de"]').value,
-      en: card.querySelector('[data-field="button-en"]').value,
-      tr: card.querySelector('[data-field="button-tr"]').value
-    },
-    link: card.querySelector('[data-field="link"]').value,
-    image: card.querySelector('[data-field="image"]').value
-  }));
-}
-
-function renderHomeSectionsEditor(items = []) {
-  const root = document.querySelector('#home-sections-editor');
-  if (!root) return;
-
-  root.innerHTML = items.map((item, index) => `
+function homeCardTemplate(item = {}, index = 0) {
+  return `
     <article class="admin-edit-card home-section-editor-card">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
         <h3>Kachel ${index + 1}</h3>
@@ -320,7 +160,157 @@ function renderHomeSectionsEditor(items = []) {
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
     </article>
+  `;
+}
+
+function collectTeamFromDom() {
+  return [...document.querySelectorAll('.team-editor-card')].map(card => ({
+    name: card.querySelector('[data-field="name"]').value,
+    role: {
+      de: card.querySelector('[data-field="role-de"]').value,
+      en: card.querySelector('[data-field="role-en"]').value,
+      tr: card.querySelector('[data-field="role-tr"]').value
+    },
+    image: card.querySelector('[data-field="image"]').value
+  }));
+}
+
+function collectPricesFromDom() {
+  return [...document.querySelectorAll('.price-editor-card')].map(card => ({
+    title: {
+      de: card.querySelector('[data-field="title-de"]').value,
+      en: card.querySelector('[data-field="title-en"]').value,
+      tr: card.querySelector('[data-field="title-tr"]').value
+    },
+    price: Number(card.querySelector('[data-field="price"]').value || 0),
+    unit: card.querySelector('[data-field="unit"]').value
+  }));
+}
+
+function collectPackagesFromDom() {
+  return [...document.querySelectorAll('.package-editor-card')].map(card => ({
+    slug: card.querySelector('[data-field="slug"]').value,
+    price: Number(card.querySelector('[data-field="price"]').value || 0),
+    title: {
+      de: card.querySelector('[data-field="title-de"]').value,
+      en: card.querySelector('[data-field="title-en"]').value,
+      tr: card.querySelector('[data-field="title-tr"]').value
+    },
+    description: {
+      de: card.querySelector('[data-field="desc-de"]').value,
+      en: card.querySelector('[data-field="desc-en"]').value,
+      tr: card.querySelector('[data-field="desc-tr"]').value
+    }
+  }));
+}
+
+function collectMenuFromDom() {
+  const result = {
+    fingerfood: [],
+    starters: [],
+    mains: [],
+    desserts: []
+  };
+
+  [...document.querySelectorAll('.menu-item-editor-card')].forEach(card => {
+    const category = card.getAttribute('data-category');
+    if (!result[category]) return;
+
+    result[category].push({
+      name: {
+        de: card.querySelector('[data-field="name-de"]').value,
+        en: card.querySelector('[data-field="name-en"]').value,
+        tr: card.querySelector('[data-field="name-tr"]').value
+      },
+      price: Number(card.querySelector('[data-field="price"]').value || 0),
+      unit: card.querySelector('[data-field="unit"]').value
+    });
+  });
+
+  return result;
+}
+
+function collectGalleryFromDom() {
+  return [...document.querySelectorAll('.gallery-editor-card')].map(card => ({
+    title: card.querySelector('[data-field="title"]').value,
+    image: card.querySelector('[data-field="image"]').value
+  }));
+}
+
+function collectHomeSectionsFromDom() {
+  return [...document.querySelectorAll('.home-section-editor-card')].map(card => ({
+    title: {
+      de: card.querySelector('[data-field="title-de"]').value,
+      en: card.querySelector('[data-field="title-en"]').value,
+      tr: card.querySelector('[data-field="title-tr"]').value
+    },
+    text: {
+      de: card.querySelector('[data-field="text-de"]').value,
+      en: card.querySelector('[data-field="text-en"]').value,
+      tr: card.querySelector('[data-field="text-tr"]').value
+    },
+    button: {
+      de: card.querySelector('[data-field="button-de"]').value,
+      en: card.querySelector('[data-field="button-en"]').value,
+      tr: card.querySelector('[data-field="button-tr"]').value
+    },
+    link: card.querySelector('[data-field="link"]').value,
+    image: card.querySelector('[data-field="image"]').value
+  }));
+}
+
+function renderTeamEditor(items = []) {
+  const root = document.querySelector('#team-editor');
+  if (!root) return;
+  root.innerHTML = items.map((item, i) => teamCardTemplate(item, i)).join('');
+}
+
+function renderPricesEditor(items = []) {
+  const root = document.querySelector('#prices-editor');
+  if (!root) return;
+  root.innerHTML = items.map((item, i) => priceCardTemplate(item, i)).join('');
+}
+
+function renderPackagesEditor(items = []) {
+  const root = document.querySelector('#packages-editor');
+  if (!root) return;
+  root.innerHTML = items.map((item, i) => packageCardTemplate(item, i)).join('');
+}
+
+function renderMenuEditor(catalog = {}) {
+  const root = document.querySelector('#menu-editor');
+  if (!root) return;
+
+  const categories = [
+    { key: 'fingerfood', label: 'Fingerfood' },
+    { key: 'starters', label: 'Vorspeisen' },
+    { key: 'mains', label: 'Hauptgerichte' },
+    { key: 'desserts', label: 'Desserts' }
+  ];
+
+  root.innerHTML = categories.map(cat => `
+    <section class="admin-edit-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h3>${cat.label}</h3>
+        <button type="button" class="btn btn-secondary add-menu-item-btn" data-category="${cat.key}">+ Eintrag hinzufügen</button>
+      </div>
+      <div class="menu-category-list" data-menu-category="${cat.key}">
+        ${(catalog[cat.key] || []).map((item, i) => menuItemCardTemplate(item, cat.key, i)).join('')}
+      </div>
+    </section>
   `).join('');
+}
+
+function renderGalleryEditor(items = []) {
+  const root = document.querySelector('#gallery-editor');
+  if (!root) return;
+  root.innerHTML = items.map((item, i) => galleryCardTemplate(item, i)).join('');
+}
+
+function renderHomeSectionsEditor(items = []) {
+  const root = document.querySelector('#home-sections-editor');
+  if (!root) return;
+  root.innerHTML = items.map((item, i) => homeCardTemplate(item, i)).join('');
 }
 
 async function renderOrders() {
@@ -379,17 +369,12 @@ async function fillFormFields() {
   document.querySelector('#impressum-mail').value = data.impressum?.mail || '';
   document.querySelector('#impressum-phone').value = data.impressum?.phone || '';
 
-  state.team = Array.isArray(data.team) ? structuredClone(data.team) : [];
-  state.priceLists = Array.isArray(data.priceLists) ? structuredClone(data.priceLists) : [];
-  state.packages = Array.isArray(data.packages) ? structuredClone(data.packages) : [];
-  state.catalog = data.catalog ? structuredClone(data.catalog) : emptyCatalog();
-  state.gallery = Array.isArray(data.gallery) ? structuredClone(data.gallery) : [];
-
-  renderTeamEditor();
-  renderPricesEditor();
-  renderPackagesEditor();
-  renderMenuEditor();
-  renderGalleryEditor();
+  renderTeamEditor(data.team || []);
+  renderPricesEditor(data.priceLists || []);
+  renderPackagesEditor(data.packages || []);
+  renderMenuEditor(data.catalog || { fingerfood: [], starters: [], mains: [], desserts: [] });
+  renderGalleryEditor(data.gallery || []);
+  renderHomeSectionsEditor(data.homeSections || []);
 }
 
 async function boot() {
@@ -416,57 +401,10 @@ async function boot() {
 
 window.addEventListener('DOMContentLoaded', boot);
 
-document.addEventListener('input', event => {
-  if (event.target.matches('.gallery-image')) {
-    const card = event.target.closest('.gallery-editor-card');
-    if (!card) return;
-    const preview = card.querySelector('.gallery-preview-wrap');
-    const title = card.querySelector('.gallery-title')?.value || '';
-    const src = event.target.value.trim();
-    preview.innerHTML = src
-      ? `<img class="gallery-preview-image" src="${escapeHtml(src)}" alt="${escapeHtml(title)}">`
-      : '<div class="gallery-preview-empty">Noch keine Bildvorschau</div>';
-  }
-});
-
-document.addEventListener('click', async event => {
+document.addEventListener('click', async (event) => {
   if (event.target.matches('#logoutBtn')) {
     await logout();
     location.href = 'login.html';
-  }
-
-  if (event.target.matches('#addTeamBtn')) {
-    state.team.push({ name: '', role: { de: '', en: '', tr: '' }, image: '' });
-    renderTeamEditor();
-  }
-  if (event.target.matches('.remove-team-btn')) {
-    event.target.closest('.team-editor-card')?.remove();
-  }
-  if (event.target.matches('#saveTeamBtn')) {
-    try {
-      await saveSection('team', collectTeamFromDom());
-      msg('Mitarbeiter gespeichert.');
-      await fillFormFields();
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
-  }
-
-  if (event.target.matches('#addPriceBtn')) {
-    state.priceLists.push({ title: { de: '', en: '', tr: '' }, price: 0, unit: 'person' });
-    renderPricesEditor();
-  }
-  if (event.target.matches('.remove-price-btn')) {
-    event.target.closest('.price-editor-card')?.remove();
-  }
-  if (event.target.matches('#savePricesBtn')) {
-    try {
-      await saveSection('priceLists', collectPricesFromDom());
-      msg('Preislisten gespeichert.');
-      await fillFormFields();
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
   }
 
   if (event.target.matches('#saveAboutBtn')) {
@@ -504,8 +442,119 @@ document.addEventListener('click', async event => {
         city: document.querySelector('#impressum-city').value,
         mail: document.querySelector('#impressum-mail').value,
         phone: document.querySelector('#impressum-phone').value
+      });
+      msg('Impressum gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
 
-        if (event.target.matches('#addHomeSectionBtn')) {
+  if (event.target.matches('#addTeamMemberBtn')) {
+    const current = collectTeamFromDom();
+    current.push({ name: '', role: { de: '', en: '', tr: '' }, image: '' });
+    renderTeamEditor(current);
+  }
+
+  if (event.target.matches('.remove-team-btn')) {
+    event.target.closest('.team-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#saveTeamBtn')) {
+    try {
+      await saveSection('team', collectTeamFromDom());
+      msg('Mitarbeiter gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('#addPriceBtn')) {
+    const current = collectPricesFromDom();
+    current.push({ title: { de: '', en: '', tr: '' }, price: 0, unit: 'person' });
+    renderPricesEditor(current);
+  }
+
+  if (event.target.matches('.remove-price-btn')) {
+    event.target.closest('.price-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#savePricesBtn')) {
+    try {
+      await saveSection('priceLists', collectPricesFromDom());
+      msg('Preislisten gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('#addPackageBtn')) {
+    const current = collectPackagesFromDom();
+    current.push({
+      slug: '',
+      price: 0,
+      title: { de: '', en: '', tr: '' },
+      description: { de: '', en: '', tr: '' }
+    });
+    renderPackagesEditor(current);
+  }
+
+  if (event.target.matches('.remove-package-btn')) {
+    event.target.closest('.package-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#savePackagesBtn')) {
+    try {
+      await saveSection('packages', collectPackagesFromDom());
+      msg('Pakete gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('.add-menu-item-btn')) {
+    const category = event.target.getAttribute('data-category');
+    const list = document.querySelector(`[data-menu-category="${category}"]`);
+    if (!list) return;
+    list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
+      name: { de: '', en: '', tr: '' },
+      price: 0,
+      unit: 'portion'
+    }, category, list.children.length));
+  }
+
+  if (event.target.matches('.remove-menu-item-btn')) {
+    event.target.closest('.menu-item-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#saveMenuBtn')) {
+    try {
+      await saveSection('catalog', collectMenuFromDom());
+      msg('Menü gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('#addGalleryBtn')) {
+    const current = collectGalleryFromDom();
+    current.push({ title: '', image: '' });
+    renderGalleryEditor(current);
+  }
+
+  if (event.target.matches('.remove-gallery-btn')) {
+    event.target.closest('.gallery-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#saveGalleryBtn')) {
+    try {
+      await saveSection('gallery', collectGalleryFromDom());
+      msg('Galerie gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('#addHomeSectionBtn')) {
     const current = collectHomeSectionsFromDom();
     current.push({
       title: { de: '', en: '', tr: '' },
@@ -529,70 +578,4 @@ document.addEventListener('click', async event => {
       msg(`Fehler: ${error.message}`, true);
     }
   }
-      });
-      msg('Impressum gespeichert.');
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
-  }
-
-  if (event.target.matches('#addPackageBtn')) {
-    state.packages.push({
-      slug: '',
-      title: { de: '', en: '', tr: '' },
-      description: { de: '', en: '', tr: '' },
-      basePricePerPerson: 0
-    });
-    renderPackagesEditor();
-  }
-  if (event.target.matches('.remove-package-btn')) {
-    event.target.closest('.package-editor-card')?.remove();
-  }
-  if (event.target.matches('#savePackagesBtn')) {
-    try {
-      await saveSection('packages', collectPackagesFromDom());
-      msg('Pakete gespeichert.');
-      await fillFormFields();
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
-  }
-
-  if (event.target.matches('.admin-add-menu-item')) {
-    const category = event.target.dataset.category;
-    state.catalog[category] = state.catalog[category] || [];
-    state.catalog[category].push({ name: { de: '', en: '', tr: '' }, price: 0, unit: 'portion' });
-    renderMenuEditor();
-  }
-  if (event.target.matches('.remove-menu-item-btn')) {
-    event.target.closest('.menu-editor-card')?.remove();
-  }
-  if (event.target.matches('#saveMenuBtn')) {
-    try {
-      await saveSection('catalog', collectMenuFromDom());
-      msg('Menü gespeichert.');
-      await fillFormFields();
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
-  }
-
-  if (event.target.matches('#addGalleryBtn')) {
-    state.gallery.push({ title: '', image: '' });
-    renderGalleryEditor();
-  }
-  if (event.target.matches('.remove-gallery-btn')) {
-    event.target.closest('.gallery-editor-card')?.remove();
-  }
-  if (event.target.matches('#saveGalleryBtn')) {
-    try {
-      await saveSection('gallery', collectGalleryFromDom());
-      msg('Galerie gespeichert.');
-      await fillFormFields();
-    } catch (error) {
-      msg(`Fehler: ${error.message}`, true);
-    }
-  }
-}
-     renderHomeSectionsEditor(data.homeSections || []);                    
-                         );
+});
