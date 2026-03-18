@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -6,22 +6,20 @@
   <title>Miss Catering</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body data-title="Miss Catering">
+<body data-title="Startseite">
   <header class="site-header" data-header></header>
 
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <span class="badge" id="hero-badge"></span>
-          <h1 id="hero-title"></h1>
-          <p id="hero-text"></p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="packages.html" id="hero-packages"></a>
-            <a class="btn btn-secondary" href="menu.html" id="hero-menu"></a>
-          </div>
+  <main class="page-shell">
+    <section class="hero section">
+      <div class="container">
+        <span class="hero-badge" id="hero-badge"></span>
+        <h1 class="hero-title" id="hero-title"></h1>
+        <p class="hero-text" id="hero-text"></p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="packages.html" id="hero-packages"></a>
+          <a class="btn btn-secondary" href="menu.html" id="hero-menu"></a>
         </div>
-        <div class="hero-image"></div>
       </div>
     </section>
 
@@ -35,8 +33,21 @@
 
   <footer class="site-footer" data-footer></footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="assets/js/app.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="assets/js/app.js"></script>
+
+  <script type="module">
+    import { t } from "./assets/js/i18n.js";
+    import { renderHome } from "./assets/js/renderers.js";
+
+    document.querySelector("#hero-badge").textContent = t("heroBadge");
+    document.querySelector("#hero-title").textContent = t("homeHeroTitle");
+    document.querySelector("#hero-text").textContent = t("homeHeroText");
+    document.querySelector("#hero-packages").textContent = t("ctaPackages");
+    document.querySelector("#hero-menu").textContent = t("ctaMenu");
+    document.querySelector("#home-sections-title").textContent = t("introCardsTitle");
+
+    renderHome();
+  </script>
 </body>
 </html>
