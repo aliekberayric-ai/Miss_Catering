@@ -22,7 +22,10 @@
   <script type="module" src="assets/js/app.js"></script>
 
   <script type="module">
+    import { t } from "./assets/js/i18n.js";
     import { loadSiteData, pickLang, money } from "./assets/js/data.js";
+
+    document.querySelector("#page-title").textContent = t("packagesTitle") || "Pakete";
 
     const data = await loadSiteData();
     const grid = document.getElementById("package-grid");
