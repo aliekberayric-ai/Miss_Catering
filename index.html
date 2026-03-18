@@ -10,23 +10,9 @@
   <header class="site-header" data-header></header>
 
   <main class="page-shell">
-    <section class="hero section">
-      <div class="container">
-        <span class="hero-badge" id="hero-badge"></span>
-        <h1 class="hero-title" id="hero-title"></h1>
-        <p class="hero-text" id="hero-text"></p>
-
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="packages.html" id="hero-packages"></a>
-          <a class="btn btn-secondary" href="menu.html" id="hero-menu"></a>
-        </div>
-      </div>
-    </section>
-
     <section class="section">
       <div class="container">
-        <h2 class="section-title" id="home-sections-title"></h2>
-        <div class="features-grid" id="home-sections"></div>
+        <div class="premium-home-grid" id="home-sections"></div>
       </div>
     </section>
   </main>
@@ -37,17 +23,24 @@
   <script type="module" src="assets/js/app.js"></script>
 
   <script type="module">
-    import { t } from "./assets/js/i18n.js";
-    import { renderHome } from "./assets/js/renderers.js";
+    import { loadSiteData, pickLang } from "./assets/js/data.js";
 
-    document.querySelector("#hero-badge").textContent = t("heroBadge");
-    document.querySelector("#hero-title").textContent = t("homeHeroTitle");
-    document.querySelector("#hero-text").textContent = t("homeHeroText");
-    document.querySelector("#hero-packages").textContent = t("ctaPackages");
-    document.querySelector("#hero-menu").textContent = t("ctaMenu");
-    document.querySelector("#home-sections-title").textContent = t("introCardsTitle");
+    const data = await loadSiteData();
+    const sections = data.homeSections || [];
+    const grid = document.querySelector("#home-sections");
 
-    renderHome();
+    grid.innerHTML = sections.map(item => `
+      <article class="premium-home-card">
+        <div class="premium-home-image">
+          <img src="${item.image || ""}" alt="${pickLang(item.title)}">
+        </div>
+        <div class="premium-home-content">
+          <h3>${pickLang(item.title)}</h3>
+          <p>${pickLang(item.text)}</p>
+          <a class="btn btn-primary" href="${item.link || '#'}">${pickLang(item.button)}</a>
+        </div>
+      </article>
+    `).join("");
   </script>
 </body>
 </html>
