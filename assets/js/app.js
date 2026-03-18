@@ -1,84 +1,115 @@
-import { t, getLang, setLang } from './i18n.js';
-import { loadSiteData, pickLang } from './data.js';
+import { loadSiteData } from "./data.js";
+import { getLang, setLang } from "./i18n.js";
 
-function navItems() {
-  return [
-    ['about.html', t('aboutTitle')],
-    ['staff.html', t('staffTitle')],
-    ['prices.html', t('pricesTitle')],
-    ['packages.html', t('packagesTitle')],
-    ['menu.html', t('menuTitle')],
-    ['gallery.html', t('galleryTitle')],
-    ['contact.html', t('contactTitle')],
-    ['impressum.html', t('impressumTitle')],
-    ['login.html', t('loginTitle')]
-  ];
+function safe(value = "") {
+  return String(value);
 }
 
-export async function renderLayout(pageTitle = '') {
+function langText(value, lang = "de") {
+  if (typeof value === "string") return value;
+  return value?.[lang] || value?.de || "";
+}
+
+function navLabels(lang) {
+  return {
+    about: { de: "Über uns", en: "About us", tr: "Hakkımızda" }[lang],
+    staff: { de: "Mitarbeiter", en: "Team", tr: "Ekip" }[lang],
+    prices: { de: "Preislisten", en: "Prices", tr: "Fiyatlar" }[lang],
+    packages: { de: "Pakete", en: "Packages", tr: "Paketler" }[lang],
+    menu: { de: "Menü", en: "Menu", tr: "Menü" }[lang],
+    gallery: { de: "Galerie", en: "Gallery", tr: "Galeri" }[lang],
+    contact: { de: "Kontaktformular", en: "Contact", tr: "İletişim" }[lang],
+    impressum: { de: "Impressum", en: "Imprint", tr: "Künye" }[lang],
+    login: { de: "Admin Login", en: "Admin Login", tr: "Admin Giriş" }[lang]
+  };
+}
+
+function buildHeader(data, lang) {
+  const labels = navLabels(lang);
+  const header = document.querySelector("[data-header]");
+  if (!header) return;
+
+  header.innerHTML = `
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">${safe(data.branding?.logoText || "MC")}</div>
+        <div class="brand-text">
+          <strong>Miss Catering</strong>
+          <span>${safe(langText(data.branding?.tagline, lang) || "Türkische Speisen mit Eleganz")}</span>
+        </div>
+      </a>
+
+      <nav class="main-nav">
+        <a href="about.html">${labels.about}</a>
+        <a href="staff.html">${labels.staff}</a>
+        <a href="prices.html">${labels.prices}</a>
+        <a href="packages.html">${labels.packages}</a>
+        <a href="menu.html">${labels.menu}</a>
+        <a href="gallery.html">${labels.gallery}</a>
+        <a href="contact.html">${labels.contact}</a>
+        <a href="impressum.html">${labels.impressum}</a>
+        <a href="login.html" class="admin-link">${labels.login}</a>
+      </nav>
+
+      <div class="lang-switch">
+        <button data-lang="de" class="${lang === "de" ? "active" : ""}">DE</button>
+        <button data-lang="en" class="${lang === "en" ? "active" : ""}">EN</button>
+        <button data-lang="tr" class="${lang === "tr" ? "active" : ""}">TR</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildFooter(data, lang) {
+  const footer = document.querySelector("[data-footer]");
+  if (!footer) return;
+
+  const contact = data.contact || {};
+  const imp = data.impressum || {};
+
+  footer.innerHTML = `
+    <div class="container footer-grid">
+      <div>
+        <strong>Miss Catering</strong>
+        <p>${safe(langText(data.branding?.tagline, lang) || "Türkische Speisen mit Eleganz")}</p>
+      </div>
+
+      <div>
+        <strong>${navLabels(lang).contact}</strong>
+        <p>
+          ${safe(contact.address || "")}<br>
+          ${safe(contact.phone || "")}<br>
+          ${safe(contact.mail || "")}
+        </p>
+      </div>
+
+      <div>
+        <strong>${navLabels(lang).impressum}</strong>
+        <p>
+          ${safe(imp.owner || "")}<br>
+          ${safe(imp.street || "")}<br>
+          ${safe(imp.city || "")}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+async function bootApp() {
+  const lang = getLang();
   const data = await loadSiteData();
-  const header = document.querySelector('[data-header]');
-  const footer = document.querySelector('[data-footer]');
-  const logoText = data.branding?.logoText || 'MC';
 
-  if (header) {
-    header.innerHTML = `
-      <div class="container nav-wrap">
-        <a class="brand" href="index.html">
-          <span class="logo-mark">${logoText}</span>
-          <span>
-            <strong>Miss Catering</strong>
-            <small>${pickLang(data.branding.tagline)}</small>
-          </span>
-        </a>
-        <nav class="nav-links">
-          ${navItems().map(([href, label]) => `<a href="${href}">${label}</a>`).join('')}
-        </nav>
-        <div class="lang-switcher">
-          ${['de', 'en', 'tr'].map(lang => `<button class="lang-btn ${getLang() === lang ? 'is-active' : ''}" data-lang="${lang}">${lang.toUpperCase()}</button>`).join('')}
-        </div>
-      </div>
-    `;
-  }
+  buildHeader(data, lang);
+  buildFooter(data, lang);
 
-  if (footer) {
-    footer.innerHTML = `
-      <div class="container footer-grid">
-        <div>
-          <h3>Miss Catering</h3>
-          <p>${pickLang(data.branding.tagline)}</p>
-        </div>
-        <div>
-          <h4>${t('contactTitle')}</h4>
-          <p>${data.contact.address}<br>${data.contact.phone}<br>${data.contact.mail}</p>
-        </div>
-        <div>
-          <h4>${t('impressumTitle')}</h4>
-          <p>${data.impressum.owner}<br>${data.impressum.street}<br>${data.impressum.city}</p>
-        </div>
-      </div>
-    `;
-  }
+  document.addEventListener("click", async (event) => {
+    const btn = event.target.closest("[data-lang]");
+    if (!btn) return;
 
-  if (pageTitle) {
-    document.title = `${pageTitle} | Miss Catering`;
-  }
-
-  document.querySelectorAll('[data-lang]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      setLang(btn.dataset.lang);
-      location.reload();
-    });
+    const newLang = btn.getAttribute("data-lang");
+    setLang(newLang);
+    location.reload();
   });
 }
 
-export function setHeroImage() {
-  const hero = document.querySelector('.hero-image');
-  if (hero) hero.innerHTML = '<div class="hero-card"><span>MC</span></div>';
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  const pageTitle = document.body.dataset.title || '';
-  await renderLayout(pageTitle);
-  setHeroImage();
-});
+window.addEventListener("DOMContentLoaded", bootApp);
