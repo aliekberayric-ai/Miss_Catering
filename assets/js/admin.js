@@ -568,4 +568,6 @@ document.addEventListener('click', async event => {
       msg(`Fehler: ${error.message}`, true);
     }
   }
-});
+}
+     renderHomeSectionsEditor(data.homeSections || []);                    
+                         );
