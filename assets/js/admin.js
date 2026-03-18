@@ -504,6 +504,31 @@ document.addEventListener('click', async event => {
         city: document.querySelector('#impressum-city').value,
         mail: document.querySelector('#impressum-mail').value,
         phone: document.querySelector('#impressum-phone').value
+
+        if (event.target.matches('#addHomeSectionBtn')) {
+    const current = collectHomeSectionsFromDom();
+    current.push({
+      title: { de: '', en: '', tr: '' },
+      text: { de: '', en: '', tr: '' },
+      button: { de: '', en: '', tr: '' },
+      link: '',
+      image: ''
+    });
+    renderHomeSectionsEditor(current);
+  }
+
+  if (event.target.matches('.remove-home-section-btn')) {
+    event.target.closest('.home-section-editor-card')?.remove();
+  }
+
+  if (event.target.matches('#saveHomeSectionsBtn')) {
+    try {
+      await saveSection('homeSections', collectHomeSectionsFromDom());
+      msg('Startseiten-Kacheln gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
       });
       msg('Impressum gespeichert.');
     } catch (error) {
