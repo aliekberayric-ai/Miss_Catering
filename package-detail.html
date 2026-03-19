@@ -1,23 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paket Auswahl</title>
+  <title>Paket Builder</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+<body>
 
-<body data-title="Paket Auswahl">
-  <header class="site-header" data-header></header>
-  <main class="page-shell">
-    <div class="container">
-      <div id="package-detail"></div>
-    </div>
-  </main>
-  <footer class="site-footer" data-footer></footer>
-  <script type="module" src="assets/js/app.js"></script>
-  <script type="module">import { renderPackageBuilder } from './assets/js/order.js'; renderPackageBuilder();</script>
+<header class="site-header" data-header></header>
+
+<main class="page-shell">
+  <div class="container">
+
+    <h1 id="package-title"></h1>
+    <p id="package-description"></p>
+    <p>Preis: <strong id="package-base-price"></strong></p>
+
+    <h2>Kundendaten</h2>
+    <input id="customer-name" placeholder="Name">
+    <input id="customer-email" placeholder="E-Mail">
+    <input id="customer-phone" placeholder="Telefon">
+    <input id="persons-count" type="number" value="10">
+
+    <h2>Fingerfood</h2>
+    <div id="fingerfood-list"></div>
+
+    <h2>Vorspeisen</h2>
+    <div id="starters-list"></div>
+
+    <h2>Hauptgerichte</h2>
+    <div id="mains-list"></div>
+
+    <h2>Desserts</h2>
+    <div id="desserts-list"></div>
+
+    <hr>
+
+    <h2>Zusammenfassung</h2>
+    <p>Paket: <span id="summary-package-name"></span></p>
+    <p>Personen: <span id="summary-persons"></span></p>
+    <p>Grundpreis: <span id="summary-base-total"></span></p>
+    <p>Extras: <span id="summary-extras-total"></span></p>
+    <p>Gesamt: <strong id="summary-grand-total"></strong></p>
+
+    <button id="save-order-btn">Bestellen</button>
+    <button id="print-order-btn">Drucken</button>
+
+    <div id="selected-items-preview"></div>
+    <p id="builder-message"></p>
+
+  </div>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="assets/js/app.js"></script>
+<script type="module" src="assets/js/order.js"></script>
+
 </body>
-
 </html>
