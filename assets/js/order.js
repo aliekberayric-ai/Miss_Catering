@@ -1,188 +1,373 @@
-import { loadSiteData, pickLang, money } from './data.js';
-import { t } from './i18n.js';
-import { saveOrder } from './storage.js';
+import { loadSiteData, pickLang, money } from "./data.js";
+import { getSupabaseClient } from "./supabase.js";
 
-function categoryLabel(key) {
-  return {
-    fingerfood: 'Fingerfood',
-    starters: 'Vorspeisen',
-    mains: 'Hauptgerichte',
-    desserts: 'Dessert'
-  }[key] || key;
+function escapeHtml(text = "") {
+  return String(text).replace(/[&<>"]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;"
+  }[char]));
 }
 
-function buildLine(item, category, index) {
-  const inputId = `${category}-${index}`;
-  const unitLabel = item.unit === 'person' ? t('perPerson') : t('perPortion');
+function getSlugFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("slug") || "";
+}
+
+function setMessage(text, isError = false) {
+  const el = document.querySelector("#builder-message");
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = isError ? "#ff8a8a" : "#9ff0b7";
+}
+
+function getPersonsCount() {
+  const value = Number(document.querySelector("#persons-count")?.value || 1);
+  return Math.max(1, Number.isFinite(value) ? value : 1);
+}
+
+function getCustomerData() {
+  return {
+    name: (document.querySelector("#customer-name")?.value || "").trim(),
+    email: (document.querySelector("#customer-email")?.value || "").trim(),
+    phone: (document.querySelector("#customer-phone")?.value || "").trim()
+  };
+}
+
+function validateCustomerData() {
+  const { name, email } = getCustomerData();
+
+  if (!name) {
+    return { ok: false, message: "Bitte Name eingeben." };
+  }
+
+  if (!email) {
+    return { ok: false, message: "Bitte E-Mail eingeben." };
+  }
+
+  const simpleEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!simpleEmailRegex.test(email)) {
+    return { ok: false, message: "Bitte eine gültige E-Mail eingeben." };
+  }
+
+  return { ok: true };
+}
+
+function renderOptionItem(item, categoryKey, index) {
+  const id = `${categoryKey}-${index}`;
+  const price = Number(item.price || 0);
+  const unit = item.unit || "portion";
+
   return `
-    <label class="check-row">
-      <div class="check-left">
-        <input type="checkbox" data-item-check id="${inputId}" data-category="${category}" data-index="${index}" data-price="${item.price}">
-        <span class="fake-check">✓</span>
-        <span>
-          <strong>${pickLang(item.name)}</strong>
-          <small>${money(item.price)} ${unitLabel}</small>
-        </span>
+    <label class="builder-option-item" for="${id}">
+      <div class="builder-option-left">
+        <input
+          type="checkbox"
+          id="${id}"
+          class="builder-option-checkbox"
+          data-category="${escapeHtml(categoryKey)}"
+          data-name="${escapeHtml(pickLang(item.name))}"
+          data-price="${price}"
+          data-unit="${escapeHtml(unit)}"
+        >
+        <span>${escapeHtml(pickLang(item.name))}</span>
       </div>
-      <input class="qty-input" type="number" min="1" value="1" data-item-qty="${inputId}">
+      <strong>${money(price)} / ${escapeHtml(unit)}</strong>
     </label>
   `;
 }
 
-function createInvoiceHtml(order) {
-  return `
-    <html><head><meta charset="utf-8"><title>Rechnung ${order.id}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;line-height:1.4}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}</style>
-    </head><body>
-      <h1>Miss Catering</h1>
-      <h2>Bestellübersicht / Rechnung</h2>
-      <p><strong>ID:</strong> ${order.id}<br><strong>Name:</strong> ${order.customerName}<br><strong>E-Mail:</strong> ${order.customerEmail}<br><strong>Personen:</strong> ${order.persons}</p>
-      <table>
-        <thead><tr><th>Kategorie</th><th>Artikel</th><th>Menge</th><th>Einzelpreis</th><th>Gesamt</th></tr></thead>
-        <tbody>
-          ${order.items.map(item => `<tr><td>${item.category}</td><td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(item.total)}</td></tr>`).join('')}
-        </tbody>
-      </table>
-      <h3>Gesamtsumme: ${money(order.total)}</h3>
-    </body></html>
-  `;
+function renderCategory(targetId, items, categoryKey) {
+  const target = document.querySelector(`#${targetId}`);
+  if (!target) return;
+
+  target.innerHTML = (items || [])
+    .map((item, index) => renderOptionItem(item, categoryKey, index))
+    .join("");
+
+  if (!items || !items.length) {
+    target.innerHTML = `<p>Keine Einträge vorhanden.</p>`;
+  }
 }
 
-function downloadFile(filename, content, type = 'text/html') {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+function getCheckedItems() {
+  return [...document.querySelectorAll(".builder-option-checkbox:checked")].map((input) => ({
+    category: input.dataset.category || "",
+    name: input.dataset.name || "",
+    price: Number(input.dataset.price || 0),
+    unit: input.dataset.unit || "portion"
+  }));
 }
 
-export async function renderPackageBuilder() {
-  const data = await loadSiteData();
-  const wrapper = document.querySelector('#package-detail');
-  if (!wrapper) return;
+function calculateTotals(pkg) {
+  const persons = getPersonsCount();
+  const checkedItems = getCheckedItems();
+  const basePricePerPerson = Number(pkg.price ?? pkg.basePricePerPerson ?? 0);
 
-  const slug = new URLSearchParams(location.search).get('slug') || 'business';
-  const pack = data.packages.find(p => p.slug === slug) || data.packages[0];
+  const baseTotal = basePricePerPerson * persons;
 
-  wrapper.innerHTML = `
-    <section class="page-card package-hero-card">
-      <h1>${pickLang(pack.title)}</h1>
-      <p>${pickLang(pack.description)}</p>
-      <p><strong>Basis:</strong> ${money(pack.basePricePerPerson)} ${t('perPerson')}</p>
-      <div class="order-head-fields">
-        <input id="customerName" type="text" placeholder="Name">
-        <input id="customerEmail" type="email" placeholder="E-Mail">
-        <input id="persons" type="number" min="1" value="25" placeholder="Personenanzahl">
-      </div>
-    </section>
-
-    <section class="builder-grid">
-      ${Object.entries(data.catalog).map(([key, items]) => `
-        <div class="builder-card">
-          <h2>${categoryLabel(key)}</h2>
-          ${items.map((item, index) => buildLine(item, key, index)).join('')}
-        </div>
-      `).join('')}
-    </section>
-
-    <section class="summary-card">
-      <h2>${t('orderBuilder')}</h2>
-      <div id="summary-lines"></div>
-      <div class="total-box">
-        <span>${t('total')}</span>
-        <strong id="grand-total">${money(0)}</strong>
-      </div>
-      <div class="summary-actions">
-        <button id="saveInvoice" class="btn btn-primary">${t('saveInvoice')}</button>
-        <button id="sendMail" class="btn btn-secondary">${t('sendMail')}</button>
-        <button id="resetOrder" class="btn btn-ghost">${t('reset')}</button>
-      </div>
-    </section>
-  `;
-
-  const checks = [...document.querySelectorAll('[data-item-check]')];
-  const personsInput = document.querySelector('#persons');
-  const summaryLines = document.querySelector('#summary-lines');
-  const grandTotal = document.querySelector('#grand-total');
-
-  function collect() {
-    const persons = Math.max(1, Number(personsInput.value || 1));
-    const selectedItems = [];
-    let total = pack.basePricePerPerson * persons;
-
-    selectedItems.push({
-      category: 'Paket',
-      name: pickLang(pack.title),
-      qty: persons,
-      price: pack.basePricePerPerson,
-      total: pack.basePricePerPerson * persons
-    });
-
-    checks.forEach(check => {
-      if (!check.checked) return;
-      const id = check.id;
-      const qty = Math.max(1, Number(document.querySelector(`[data-item-qty="${id}"]`).value || 1));
-      const category = check.dataset.category;
-      const item = data.catalog[category][Number(check.dataset.index)];
-      const lineTotal = Number(check.dataset.price) * qty;
-      total += lineTotal;
-      selectedItems.push({
-        category: categoryLabel(category),
-        name: pickLang(item.name),
-        qty,
-        price: Number(check.dataset.price),
-        total: lineTotal
-      });
-    });
-
-    summaryLines.innerHTML = selectedItems.map(item => `
-      <div class="summary-line">
-        <span>${item.category} · ${item.name} × ${item.qty}</span>
-        <strong>${money(item.total)}</strong>
-      </div>
-    `).join('');
-    grandTotal.textContent = money(total);
-    return { selectedItems, total, persons };
+  let extrasTotal = 0;
+  for (const item of checkedItems) {
+    if (item.unit === "person") {
+      extrasTotal += item.price * persons;
+    } else {
+      extrasTotal += item.price;
+    }
   }
 
-  wrapper.addEventListener('input', collect);
-  collect();
+  const grandTotal = baseTotal + extrasTotal;
 
-  document.querySelector('#resetOrder').addEventListener('click', () => {
-    checks.forEach(check => check.checked = false);
-    document.querySelectorAll('.qty-input').forEach(input => input.value = 1);
-    personsInput.value = 25;
-    collect();
-  });
-
-  document.querySelector('#saveInvoice').addEventListener('click', async () => {
-    const customerName = document.querySelector('#customerName').value.trim() || 'Unbekannt';
-    const customerEmail = document.querySelector('#customerEmail').value.trim() || 'ohne-mail';
-    const { selectedItems, total, persons } = collect();
-    const order = {
-      id: `MC-${Date.now()}`,
-      customerName,
-      customerEmail,
-      packageSlug: pack.slug,
-      persons,
-      items: selectedItems,
-      total,
-      createdAt: new Date().toISOString()
-    };
-    await saveOrder(order);
-    downloadFile(`${order.id}.html`, createInvoiceHtml(order));
-    alert('Rechnung gespeichert und Archiv-Eintrag angelegt.');
-  });
-
-  document.querySelector('#sendMail').addEventListener('click', () => {
-    const customerName = document.querySelector('#customerName').value.trim() || 'Kunde';
-    const customerEmail = document.querySelector('#customerEmail').value.trim() || '';
-    const { selectedItems, total, persons } = collect();
-    const lines = selectedItems.map(item => `- ${item.category}: ${item.name} x ${item.qty} = ${money(item.total)}`).join('%0D%0A');
-    const subject = encodeURIComponent(`Anfrage ${pickLang(pack.title)} - ${customerName}`);
-    const body = encodeURIComponent(`Name: ${customerName}\nE-Mail: ${customerEmail}\nPersonen: ${persons}\n\nAuswahl:\n${decodeURIComponent(lines)}\n\nGesamt: ${money(total)}`);
-    window.location.href = `mailto:bestellung@miss-catering.de?subject=${subject}&body=${body}`;
-  });
+  return {
+    persons,
+    checkedItems,
+    basePricePerPerson,
+    baseTotal,
+    extrasTotal,
+    grandTotal
+  };
 }
+
+function updateSummary(pkg) {
+  const summary = calculateTotals(pkg);
+
+  const packageName = pickLang(pkg.title);
+
+  const packageNameEl = document.querySelector("#summary-package-name");
+  const personsEl = document.querySelector("#summary-persons");
+  const baseTotalEl = document.querySelector("#summary-base-total");
+  const extrasTotalEl = document.querySelector("#summary-extras-total");
+  const grandTotalEl = document.querySelector("#summary-grand-total");
+  const previewEl = document.querySelector("#selected-items-preview");
+
+  if (packageNameEl) packageNameEl.textContent = packageName;
+  if (personsEl) personsEl.textContent = String(summary.persons);
+  if (baseTotalEl) baseTotalEl.textContent = money(summary.baseTotal);
+  if (extrasTotalEl) extrasTotalEl.textContent = money(summary.extrasTotal);
+  if (grandTotalEl) grandTotalEl.textContent = money(summary.grandTotal);
+
+  if (!previewEl) return;
+
+  if (!summary.checkedItems.length) {
+    previewEl.innerHTML = "<p>Noch keine Extras ausgewählt.</p>";
+    return;
+  }
+
+  previewEl.innerHTML = summary.checkedItems.map((item) => `
+    <div class="selected-preview-item">
+      <span>${escapeHtml(item.name)}</span>
+      <strong>${money(item.price)} / ${escapeHtml(item.unit)}</strong>
+    </div>
+  `).join("");
+}
+
+async function saveOrderToSupabase(pkg) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    throw new Error("Supabase nicht verbunden.");
+  }
+
+  const validation = validateCustomerData();
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
+
+  const customer = getCustomerData();
+  const summary = calculateTotals(pkg);
+
+  const payload = {
+    package: {
+      slug: pkg.slug || "",
+      title: pkg.title || {},
+      description: pkg.description || {},
+      price: Number(pkg.price ?? pkg.basePricePerPerson ?? 0)
+    },
+    customer,
+    summary,
+    created_at_client: new Date().toISOString()
+  };
+
+  const { error } = await supabase.from("orders").insert({
+    customer_name: customer.name,
+    customer_email: customer.email,
+    package_slug: pkg.slug || "",
+    persons: summary.persons,
+    total_price: summary.grandTotal,
+    payload
+  });
+
+  if (error) {
+    throw error;
+  }
+}
+
+function openPrintWindow(pkg) {
+  const customer = getCustomerData();
+  const summary = calculateTotals(pkg);
+  const packageName = pickLang(pkg.title);
+
+  const itemsHtml = summary.checkedItems.length
+    ? summary.checkedItems.map((item) => `
+        <tr>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${escapeHtml(item.category)}</td>
+          <td>${escapeHtml(item.unit)}</td>
+          <td>${money(item.price)}</td>
+        </tr>
+      `).join("")
+    : `
+      <tr>
+        <td colspan="4">Keine Extras ausgewählt</td>
+      </tr>
+    `;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="de">
+    <head>
+      <meta charset="UTF-8">
+      <title>Miss Catering - Angebot</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 32px;
+          color: #222;
+        }
+        h1, h2, h3 {
+          margin-bottom: 8px;
+        }
+        p {
+          margin: 6px 0;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 16px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 10px;
+          text-align: left;
+        }
+        .summary {
+          margin-top: 24px;
+        }
+        .summary p {
+          margin: 8px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Miss Catering</h1>
+      <h2>Angebot / Bestellung</h2>
+
+      <p><strong>Kunde:</strong> ${escapeHtml(customer.name)}</p>
+      <p><strong>E-Mail:</strong> ${escapeHtml(customer.email)}</p>
+      <p><strong>Telefon:</strong> ${escapeHtml(customer.phone)}</p>
+
+      <p><strong>Paket:</strong> ${escapeHtml(packageName)}</p>
+      <p><strong>Personen:</strong> ${summary.persons}</p>
+      <p><strong>Grundpreis pro Person:</strong> ${money(summary.basePricePerPerson)}</p>
+
+      <h3>Ausgewählte Extras</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Kategorie</th>
+            <th>Einheit</th>
+            <th>Preis</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <div class="summary">
+        <p><strong>Grundpreis gesamt:</strong> ${money(summary.baseTotal)}</p>
+        <p><strong>Extras gesamt:</strong> ${money(summary.extrasTotal)}</p>
+        <p><strong>Gesamt:</strong> ${money(summary.grandTotal)}</p>
+      </div>
+
+      <script>
+        window.onload = () => window.print();
+      </script>
+    </body>
+    </html>
+  `;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    setMessage("Pop-up wurde blockiert. Bitte Pop-ups erlauben.", true);
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+async function boot() {
+  try {
+    const data = await loadSiteData();
+    const slug = getSlugFromUrl();
+
+    const packages = data.packages || [];
+    const pkg = packages.find((item) => item.slug === slug) || packages[0];
+
+    if (!pkg) {
+      setMessage("Kein Paket gefunden.", true);
+      return;
+    }
+
+    const titleEl = document.querySelector("#package-title");
+    const descEl = document.querySelector("#package-description");
+    const basePriceEl = document.querySelector("#package-base-price");
+
+    if (titleEl) titleEl.textContent = pickLang(pkg.title);
+    if (descEl) descEl.textContent = pickLang(pkg.description);
+    if (basePriceEl) {
+      basePriceEl.textContent = money(Number(pkg.price ?? pkg.basePricePerPerson ?? 0));
+    }
+
+    renderCategory("fingerfood-list", data.catalog?.fingerfood || [], "fingerfood");
+    renderCategory("starters-list", data.catalog?.starters || [], "starters");
+    renderCategory("mains-list", data.catalog?.mains || [], "mains");
+    renderCategory("desserts-list", data.catalog?.desserts || [], "desserts");
+
+    updateSummary(pkg);
+
+    document.addEventListener("change", (event) => {
+      if (
+        event.target.matches(".builder-option-checkbox") ||
+        event.target.matches("#persons-count")
+      ) {
+        updateSummary(pkg);
+      }
+    });
+
+    document.querySelector("#save-order-btn")?.addEventListener("click", async () => {
+      try {
+        setMessage("Speichere Bestellung...");
+        await saveOrderToSupabase(pkg);
+        setMessage("Bestellung wurde gespeichert.");
+      } catch (error) {
+        setMessage(`Fehler: ${error.message}`, true);
+      }
+    });
+
+    document.querySelector("#print-order-btn")?.addEventListener("click", () => {
+      const validation = validateCustomerData();
+      if (!validation.ok) {
+        setMessage(validation.message, true);
+        return;
+      }
+      openPrintWindow(pkg);
+    });
+  } catch (error) {
+    setMessage(`Fehler beim Laden: ${error.message}`, true);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", boot);
