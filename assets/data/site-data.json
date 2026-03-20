@@ -2,15 +2,15 @@
   "branding": {
     "logoText": "MC",
     "tagline": {
-      "de": "Türkische Speisen mit Eleganz",
-      "en": "Turkish cuisine with elegance",
-      "tr": "Zarafetle Türk mutfağı"
+      "de": "Speisen mit Eleganz",
+      "en": "cuisine with elegance",
+      "tr": "Zarafetle mutfağı"
     }
   },
   "about": {
-    "de": "Miss Catering steht für moderne türkische Küche, stilvolle Präsentation und flexible Event-Konzepte.",
-    "en": "Miss Catering stands for modern Turkish cuisine, stylish presentation and flexible event concepts.",
-    "tr": "Miss Catering; modern Türk mutfağı, şık sunum ve esnek organizasyon konseptleri demektir."
+    "de": "Miss Catering steht für moderne Küche, stilvolle Präsentation und flexible Event-Konzepte.",
+    "en": "Miss Catering stands for modern cuisine, stylish presentation and flexible event concepts.",
+    "tr": "Miss Catering; modern mutfağı, şık sunum ve esnek organizasyon konseptleri demektir."
   },
   "team": [
     {
