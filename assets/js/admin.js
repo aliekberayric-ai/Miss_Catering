@@ -490,6 +490,11 @@ async function renderOrders() {
 async function fillFormFields() {
   const data = await loadSiteData();
 
+  setValue('#branding-logoText', data.branding?.logoText || 'MC');
+  setValue('#branding-tagline-de', data.branding?.tagline?.de || '');
+  setValue('#branding-tagline-en', data.branding?.tagline?.en || '');
+  setValue('#branding-tagline-tr', data.branding?.tagline?.tr || '');
+
   setValue('#about-de', data.about?.de || '');
   setValue('#about-en', data.about?.en || '');
   setValue('#about-tr', data.about?.tr || '');
