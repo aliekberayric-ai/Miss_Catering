@@ -170,7 +170,7 @@ function bindLanguageButtons() {
 function applyDocumentTitle(lang) {
   const rawTitle = document.body?.dataset?.title || '';
   const label = pageTitleLabel(rawTitle, lang);
-  document.title = `${label} | ${CONFIG.siteName || 'Miss Catering'}`;
+  document.title = ⁠ ${label} | ${CONFIG.siteName || 'Miss Catering'} ⁠;
 }
 
 async function initChrome() {
