@@ -1,115 +1,187 @@
-import { loadSiteData } from "./data.js";
-import { getLang, setLang } from "./i18n.js";
+import { CONFIG } from './config.js';
+import { loadSiteData } from './data.js';
+import { getLang, setLang } from './i18n.js';
 
-function safe(value = "") {
-  return String(value);
+function escapeHtml(text = '') {
+  return String(text).replace(/[&<>"]/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  }[char]));
 }
 
-function langText(value, lang = "de") {
-  if (typeof value === "string") return value;
-  return value?.[lang] || value?.de || "";
-}
-
-function navLabels(lang) {
-  return {
-    about: { de: "Über uns", en: "About us", tr: "Hakkımızda" }[lang],
-    staff: { de: "Mitarbeiter", en: "Team", tr: "Ekip" }[lang],
-    prices: { de: "Preislisten", en: "Prices", tr: "Fiyatlar" }[lang],
-    packages: { de: "Pakete", en: "Packages", tr: "Paketler" }[lang],
-    menu: { de: "Menü", en: "Menu", tr: "Menü" }[lang],
-    gallery: { de: "Galerie", en: "Gallery", tr: "Galeri" }[lang],
-    contact: { de: "Kontaktformular", en: "Contact", tr: "İletişim" }[lang],
-    impressum: { de: "Impressum", en: "Imprint", tr: "Künye" }[lang],
-    login: { de: "Admin Login", en: "Admin Login", tr: "Admin Giriş" }[lang]
+function navLabel(key, lang) {
+  const labels = {
+    about: { de: 'Über uns', en: 'About us', tr: 'Hakkımızda' },
+    staff: { de: 'Mitarbeiter', en: 'Team', tr: 'Ekibimiz' },
+    prices: { de: 'Preislisten', en: 'Prices', tr: 'Fiyatlar' },
+    packages: { de: 'Pakete', en: 'Packages', tr: 'Paketler' },
+    menu: { de: 'Menü', en: 'Menu', tr: 'Menü' },
+    gallery: { de: 'Galerie', en: 'Gallery', tr: 'Galeri' },
+    contact: { de: 'Kontaktformular', en: 'Contact form', tr: 'İletişim Formu' },
+    impressum: { de: 'Impressum', en: 'Legal notice', tr: 'Künye' },
+    admin: { de: 'Admin Login', en: 'Admin Login', tr: 'Admin Girişi' }
   };
+
+  return labels[key]?.[lang] || labels[key]?.de || key;
 }
 
-function buildHeader(data, lang) {
-  const labels = navLabels(lang);
-  const header = document.querySelector("[data-header]");
-  if (!header) return;
+function pageTitleLabel(rawTitle, lang) {
+  const map = {
+    'Admin': { de: 'Admin', en: 'Admin', tr: 'Admin' },
+    'Über uns': { de: 'Über uns', en: 'About us', tr: 'Hakkımızda' },
+    'Mitarbeiter': { de: 'Mitarbeiter', en: 'Team', tr: 'Ekibimiz' },
+    'Preislisten': { de: 'Preislisten', en: 'Prices', tr: 'Fiyatlar' },
+    'Pakete': { de: 'Pakete', en: 'Packages', tr: 'Paketler' },
+    'Menü': { de: 'Menü', en: 'Menu', tr: 'Menü' },
+    'Galerie': { de: 'Galerie', en: 'Gallery', tr: 'Galeri' },
+    'Kontaktformular': { de: 'Kontaktformular', en: 'Contact form', tr: 'İletişim Formu' },
+    'Impressum': { de: 'Impressum', en: 'Legal notice', tr: 'Künye' },
+    'Paket Builder': { de: 'Paket Builder', en: 'Package Builder', tr: 'Paket Oluşturucu' }
+  };
 
-  header.innerHTML = `
-    <div class="container header-inner">
-      <a class="brand" href="index.html">
-        <div class="brand-mark">${safe(data.branding?.logoText || "MC")}</div>
-        <div class="brand-text">
-          <strong>Miss Catering</strong>
-          <span>${safe(langText(data.branding?.tagline, lang) || "Speisen mit Eleganz")}</span>
-        </div>
-      </a>
+  return map[rawTitle]?.[lang] || rawTitle || CONFIG.siteName || 'Miss Catering';
+}
 
-      <nav class="main-nav">
-        <a href="about.html">${labels.about}</a>
-        <a href="staff.html">${labels.staff}</a>
-        <a href="prices.html">${labels.prices}</a>
-        <a href="packages.html">${labels.packages}</a>
-        <a href="menu.html">${labels.menu}</a>
-        <a href="gallery.html">${labels.gallery}</a>
-        <a href="contact.html">${labels.contact}</a>
-        <a href="impressum.html">${labels.impressum}</a>
-        <a href="login.html" class="admin-link">${labels.login}</a>
-      </nav>
+function renderLanguageSwitch(lang) {
+  const langs = [
+    { code: 'de', label: 'DE' },
+    { code: 'en', label: 'EN' },
+    { code: 'tr', label: 'TR' }
+  ];
 
-      <div class="lang-switch">
-        <button data-lang="de" class="${lang === "de" ? "active" : ""}">DE</button>
-        <button data-lang="en" class="${lang === "en" ? "active" : ""}">EN</button>
-        <button data-lang="tr" class="${lang === "tr" ? "active" : ""}">TR</button>
-      </div>
+  return `
+    <div class="lang-switch" aria-label="Language switch">
+      ${langs.map(item => `
+        <button
+          type="button"
+          class="${item.code === lang ? 'active' : ''}"
+          data-lang="${item.code}"
+          aria-pressed="${item.code === lang ? 'true' : 'false'}"
+        >
+          ${item.label}
+        </button>
+      `).join('')}
     </div>
   `;
 }
 
-function buildFooter(data, lang) {
-  const footer = document.querySelector("[data-footer]");
+function renderHeader(data, lang) {
+  const header = document.querySelector('[data-header]');
+  if (!header) return;
+
+  const branding = data.branding || {};
+  const logoText = branding.logoText || 'MC';
+  const tagline =
+    branding.tagline?.[lang] ||
+    branding.tagline?.de ||
+    'Speisen mit Eleganz';
+
+  header.innerHTML = `
+    <div class="container nav-shell">
+      <a class="brand" href="index.html" aria-label="${escapeHtml(CONFIG.siteName || 'Miss Catering')}">
+        <div class="brand-mark">${escapeHtml(logoText)}</div>
+        <div class="brand-copy">
+          <strong>${escapeHtml(CONFIG.siteName || 'Miss Catering')}</strong>
+          <span>${escapeHtml(tagline)}</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="about.html">${navLabel('about', lang)}</a>
+        <a href="staff.html">${navLabel('staff', lang)}</a>
+        <a href="prices.html">${navLabel('prices', lang)}</a>
+        <a href="packages.html">${navLabel('packages', lang)}</a>
+        <a href="menu.html">${navLabel('menu', lang)}</a>
+        <a href="gallery.html">${navLabel('gallery', lang)}</a>
+        <a href="contact.html">${navLabel('contact', lang)}</a>
+        <a href="impressum.html">${navLabel('impressum', lang)}</a>
+        <a href="login.html">${navLabel('admin', lang)}</a>
+      </nav>
+
+      ${renderLanguageSwitch(lang)}
+    </div>
+  `;
+}
+
+function renderFooter(data, lang) {
+  const footer = document.querySelector('[data-footer]');
   if (!footer) return;
 
+  const branding = data.branding || {};
+  const tagline =
+    branding.tagline?.[lang] ||
+    branding.tagline?.de ||
+    'Speisen mit Eleganz';
+
   const contact = data.contact || {};
-  const imp = data.impressum || {};
+  const impressum = data.impressum || {};
 
   footer.innerHTML = `
     <div class="container footer-grid">
       <div>
-        <strong>Miss Catering</strong>
-        <p>${safe(langText(data.branding?.tagline, lang) || "Speisen mit Eleganz")}</p>
+        <strong>${escapeHtml(CONFIG.siteName || 'Miss Catering')}</strong>
+        <p>${escapeHtml(tagline)}</p>
       </div>
 
       <div>
-        <strong>${navLabels(lang).contact}</strong>
+        <strong>${navLabel('contact', lang)}</strong>
         <p>
-          ${safe(contact.address || "")}<br>
-          ${safe(contact.phone || "")}<br>
-          ${safe(contact.mail || "")}
+          ${escapeHtml(contact.address || '')}<br>
+          ${escapeHtml(contact.phone || '')}<br>
+          ${escapeHtml(contact.mail || CONFIG.siteEmail || '')}
         </p>
       </div>
 
       <div>
-        <strong>${navLabels(lang).impressum}</strong>
+        <strong>${navLabel('impressum', lang)}</strong>
         <p>
-          ${safe(imp.owner || "")}<br>
-          ${safe(imp.street || "")}<br>
-          ${safe(imp.city || "")}
+          ${escapeHtml(impressum.owner || '')}<br>
+          ${escapeHtml(impressum.street || '')}<br>
+          ${escapeHtml(impressum.city || '')}
         </p>
       </div>
     </div>
   `;
 }
 
-async function bootApp() {
-  const lang = getLang();
-  const data = await loadSiteData();
-
-  buildHeader(data, lang);
-  buildFooter(data, lang);
-
-  document.addEventListener("click", async (event) => {
-    const btn = event.target.closest("[data-lang]");
-    if (!btn) return;
-
-    const newLang = btn.getAttribute("data-lang");
-    setLang(newLang);
-    location.reload();
+function markActiveNav() {
+  const path = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.main-nav a').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === path) {
+      link.classList.add('active');
+    }
   });
 }
 
-window.addEventListener("DOMContentLoaded", bootApp);
+function bindLanguageButtons() {
+  document.querySelectorAll('[data-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.getAttribute('data-lang');
+      if (!lang) return;
+      setLang(lang);
+      location.reload();
+    });
+  });
+}
+
+function applyDocumentTitle(lang) {
+  const rawTitle = document.body?.dataset?.title || '';
+  const label = pageTitleLabel(rawTitle, lang);
+  document.title = `${label} | ${CONFIG.siteName || 'Miss Catering'}`;
+}
+
+async function initChrome() {
+  const lang = getLang();
+  const data = await loadSiteData();
+
+  renderHeader(data, lang);
+  renderFooter(data, lang);
+  markActiveNav();
+  bindLanguageButtons();
+  applyDocumentTitle(lang);
+}
+
+window.addEventListener('DOMContentLoaded', initChrome);
