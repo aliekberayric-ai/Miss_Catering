@@ -1,13 +1,12 @@
-import { CONFIG } from './config.js';
 import { getSupabaseClient } from './supabase.js';
 import { getLang } from './i18n.js';
 
 let cache = null;
 
-function normalizeSiteContentRows(rows = []) {
+function normalizeRows(rows = []) {
   const map = {};
   for (const row of rows) {
-    if (!row?.section_key) continue;
+    if (!row || !row.section_key) continue;
     map[row.section_key] = row.payload;
   }
   return map;
@@ -17,22 +16,33 @@ async function loadFromSupabase() {
   const supabase = getSupabaseClient();
   if (!supabase) return null;
 
-  const { data, error } = await supabase
-    .from('site_content')
-    .select('section_key, payload');
+  try {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('section_key, payload');
 
-  if (error) {
-    console.warn('Supabase load failed, fallback to JSON:', error.message);
+    if (error) {
+      console.warn('Supabase load failed:', error.message);
+      return null;
+    }
+
+    return normalizeRows(data || []);
+  } catch (error) {
+    console.warn('Supabase exception:', error.message);
     return null;
   }
-
-  return normalizeSiteContentRows(data || []);
 }
 
 async function loadJsonFallback() {
   try {
-    const res = await fetch('./assets/data/site-data.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(⁠ Fallback JSON not found: ${res.status} ⁠);
+    const res = await fetch('./assets/data/site-data.json', {
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      throw new Error(`site-data.json not found (${res.status})`);
+    }
+
     return await res.json();
   } catch (error) {
     console.warn('JSON fallback failed:', error.message);
@@ -68,15 +78,15 @@ function mergeData(map = {}, fallback = {}) {
     contact: map.contact || fallback.contact || {
       address: '',
       phone: '',
-      mail: CONFIG.siteEmail || ''
+      mail: ''
     },
 
     impressum: map.impressum || fallback.impressum || {
-      company: CONFIG.siteName || 'Miss Catering',
+      company: 'Miss Catering',
       owner: '',
       street: '',
       city: '',
-      mail: CONFIG.siteEmail || '',
+      mail: '',
       phone: ''
     },
 
@@ -95,9 +105,9 @@ export async function loadSiteData() {
   if (cache) return cache;
 
   const fallback = await loadJsonFallback();
-  const map = await loadFromSupabase();
+  const supabaseMap = await loadFromSupabase();
 
-  cache = mergeData(map || {}, fallback || {});
+  cache = mergeData(supabaseMap || {}, fallback || {});
   return cache;
 }
 
@@ -106,7 +116,7 @@ export function clearSiteDataCache() {
 }
 
 export function pickLang(value) {
-  if (typeof value === 'string') return value || '';
+  if (typeof value === 'string') return value;
   if (!value || typeof value !== 'object') return '';
 
   const lang = getLang();
@@ -115,6 +125,7 @@ export function pickLang(value) {
 
 export function money(value) {
   const lang = getLang();
+
   const locale =
     lang === 'tr' ? 'tr-TR' :
     lang === 'en' ? 'en-GB' :
@@ -122,6 +133,6 @@ export function money(value) {
 
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: CONFIG.currency || 'EUR'
+    currency: 'EUR'
   }).format(Number(value || 0));
 }
