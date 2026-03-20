@@ -398,6 +398,30 @@ async function fillFormFields() {
   renderHomeSectionsEditor(data.homeSections || []);
 }
 
+async function updateOrderStatus(orderId, status) {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error('Supabase nicht verbunden.');
+
+  const { error } = await supabase
+    .from('orders')
+    .update({ status })
+    .eq('id', orderId);
+
+  if (error) throw error;
+}
+
+async function deleteOrder(orderId) {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error('Supabase nicht verbunden.');
+
+  const { error } = await supabase
+    .from('orders')
+    .delete()
+    .eq('id', orderId);
+
+  if (error) throw error;
+}
+
 async function boot() {
   const gate = document.querySelector('#admin-gate');
   const app = document.querySelector('#admin-app');
