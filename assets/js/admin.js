@@ -3,6 +3,8 @@ import { getSession, isAdmin, logout } from './auth.js';
 import { getSupabaseClient } from './supabase.js';
 import { loadSiteData, clearSiteDataCache } from './data.js';
 
+const STORAGE_BUCKET = 'site-images';
+
 function escapeHtml(text = '') {
   return String(text).replace(/[&<>"]/g, char => ({
     '&': '&amp;',
@@ -12,11 +14,29 @@ function escapeHtml(text = '') {
   }[char]));
 }
 
+function euro(value = 0) {
+  return `${Number(value || 0).toFixed(2).replace('.', ',')} €`;
+}
+
+function formatDateTime(value) {
+  if (!value) return '-';
+  try {
+    return new Date(value).toLocaleString('de-DE');
+  } catch {
+    return String(value);
+  }
+}
+
 function msg(text, isError = false) {
   const el = document.querySelector('#admin-message');
   if (!el) return;
   el.textContent = text;
   el.style.color = isError ? '#ff8a8a' : '#9ff0b7';
+}
+
+function setValue(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.value = value ?? '';
 }
 
 async function saveSection(sectionKey, payload) {
@@ -31,10 +51,51 @@ async function saveSection(sectionKey, payload) {
   clearSiteDataCache();
 }
 
+async function uploadImageFile(file, folder = 'misc') {
+  const supabase = getSupabaseClient();
+  if (!supabase) throw new Error('Supabase nicht verbunden.');
+  if (!file) throw new Error('Keine Datei ausgewählt.');
+
+  const safeName = String(file.name || 'bild')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-');
+
+  const unique = (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const path = `${folder}/${unique}-${safeName}`;
+
+  const { error: uploadError } = await supabase
+    .storage
+    .from(STORAGE_BUCKET)
+    .upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type || undefined
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function uploadControlsTemplate(kind = 'misc', image = '') {
+  return `
+    <div class="admin-image-tools">
+      <div class="admin-grid">
+        <input class="image-file-input" type="file" accept="image/*">
+        <button type="button" class="btn btn-secondary upload-image-btn" data-upload-kind="${escapeHtml(kind)}">
+          Bild hochladen
+        </button>
+      </div>
+      <img class="admin-image-preview" src="${escapeHtml(image || '')}" alt="" ${image ? '' : 'hidden'}>
+    </div>
+  `;
+}
+
 function teamCardTemplate(item = {}, index = 0) {
   return `
     <article class="admin-edit-card team-editor-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${escapeHtml(item.name || `Mitarbeiter ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-team-btn">Entfernen</button>
       </div>
@@ -45,6 +106,7 @@ function teamCardTemplate(item = {}, index = 0) {
         <input data-field="role-tr" type="text" placeholder="Rolle TR" value="${escapeHtml(item.role?.tr || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
+      ${uploadControlsTemplate('team', item.image || '')}
     </article>
   `;
 }
@@ -52,7 +114,7 @@ function teamCardTemplate(item = {}, index = 0) {
 function priceCardTemplate(item = {}, index = 0) {
   return `
     <article class="admin-edit-card price-editor-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${escapeHtml(item.title?.de || `Preis ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-price-btn">Entfernen</button>
       </div>
@@ -73,7 +135,7 @@ function priceCardTemplate(item = {}, index = 0) {
 function packageCardTemplate(item = {}, index = 0) {
   return `
     <article class="admin-edit-card package-editor-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${escapeHtml(item.title?.de || `Paket ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-package-btn">Entfernen</button>
       </div>
@@ -96,7 +158,7 @@ function packageCardTemplate(item = {}, index = 0) {
 function menuItemCardTemplate(item = {}, category = '', index = 0) {
   return `
     <article class="admin-edit-card menu-item-editor-card" data-category="${escapeHtml(category)}">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${escapeHtml(item.name?.de || `${category} ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-menu-item-btn">Entfernen</button>
       </div>
@@ -117,7 +179,7 @@ function menuItemCardTemplate(item = {}, category = '', index = 0) {
 function galleryCardTemplate(item = {}, index = 0) {
   return `
     <article class="admin-edit-card gallery-editor-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${escapeHtml(item.title || `Bild ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-gallery-btn">Entfernen</button>
       </div>
@@ -125,6 +187,7 @@ function galleryCardTemplate(item = {}, index = 0) {
         <input data-field="title" type="text" placeholder="Titel" value="${escapeHtml(item.title || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
+      ${uploadControlsTemplate('gallery', item.image || '')}
     </article>
   `;
 }
@@ -132,7 +195,7 @@ function galleryCardTemplate(item = {}, index = 0) {
 function homeCardTemplate(item = {}, index = 0) {
   return `
     <article class="admin-edit-card home-section-editor-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>Kachel ${index + 1}</h3>
         <button type="button" class="btn btn-secondary remove-home-section-btn">Entfernen</button>
       </div>
@@ -159,47 +222,48 @@ function homeCardTemplate(item = {}, index = 0) {
         <input data-field="link" type="text" placeholder="Link, z.B. about.html" value="${escapeHtml(item.link || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
+      ${uploadControlsTemplate('home', item.image || '')}
     </article>
   `;
 }
 
 function collectTeamFromDom() {
   return [...document.querySelectorAll('.team-editor-card')].map(card => ({
-    name: card.querySelector('[data-field="name"]').value,
+    name: card.querySelector('[data-field="name"]')?.value || '',
     role: {
-      de: card.querySelector('[data-field="role-de"]').value,
-      en: card.querySelector('[data-field="role-en"]').value,
-      tr: card.querySelector('[data-field="role-tr"]').value
+      de: card.querySelector('[data-field="role-de"]')?.value || '',
+      en: card.querySelector('[data-field="role-en"]')?.value || '',
+      tr: card.querySelector('[data-field="role-tr"]')?.value || ''
     },
-    image: card.querySelector('[data-field="image"]').value
+    image: card.querySelector('[data-field="image"]')?.value || ''
   }));
 }
 
 function collectPricesFromDom() {
   return [...document.querySelectorAll('.price-editor-card')].map(card => ({
     title: {
-      de: card.querySelector('[data-field="title-de"]').value,
-      en: card.querySelector('[data-field="title-en"]').value,
-      tr: card.querySelector('[data-field="title-tr"]').value
+      de: card.querySelector('[data-field="title-de"]')?.value || '',
+      en: card.querySelector('[data-field="title-en"]')?.value || '',
+      tr: card.querySelector('[data-field="title-tr"]')?.value || ''
     },
-    price: Number(card.querySelector('[data-field="price"]').value || 0),
-    unit: card.querySelector('[data-field="unit"]').value
+    price: Number(card.querySelector('[data-field="price"]')?.value || 0),
+    unit: card.querySelector('[data-field="unit"]')?.value || 'person'
   }));
 }
 
 function collectPackagesFromDom() {
   return [...document.querySelectorAll('.package-editor-card')].map(card => ({
-    slug: card.querySelector('[data-field="slug"]').value,
-    price: Number(card.querySelector('[data-field="price"]').value || 0),
+    slug: card.querySelector('[data-field="slug"]')?.value || '',
+    price: Number(card.querySelector('[data-field="price"]')?.value || 0),
     title: {
-      de: card.querySelector('[data-field="title-de"]').value,
-      en: card.querySelector('[data-field="title-en"]').value,
-      tr: card.querySelector('[data-field="title-tr"]').value
+      de: card.querySelector('[data-field="title-de"]')?.value || '',
+      en: card.querySelector('[data-field="title-en"]')?.value || '',
+      tr: card.querySelector('[data-field="title-tr"]')?.value || ''
     },
     description: {
-      de: card.querySelector('[data-field="desc-de"]').value,
-      en: card.querySelector('[data-field="desc-en"]').value,
-      tr: card.querySelector('[data-field="desc-tr"]').value
+      de: card.querySelector('[data-field="desc-de"]')?.value || '',
+      en: card.querySelector('[data-field="desc-en"]')?.value || '',
+      tr: card.querySelector('[data-field="desc-tr"]')?.value || ''
     }
   }));
 }
@@ -218,12 +282,12 @@ function collectMenuFromDom() {
 
     result[category].push({
       name: {
-        de: card.querySelector('[data-field="name-de"]').value,
-        en: card.querySelector('[data-field="name-en"]').value,
-        tr: card.querySelector('[data-field="name-tr"]').value
+        de: card.querySelector('[data-field="name-de"]')?.value || '',
+        en: card.querySelector('[data-field="name-en"]')?.value || '',
+        tr: card.querySelector('[data-field="name-tr"]')?.value || ''
       },
-      price: Number(card.querySelector('[data-field="price"]').value || 0),
-      unit: card.querySelector('[data-field="unit"]').value
+      price: Number(card.querySelector('[data-field="price"]')?.value || 0),
+      unit: card.querySelector('[data-field="unit"]')?.value || 'portion'
     });
   });
 
@@ -232,30 +296,30 @@ function collectMenuFromDom() {
 
 function collectGalleryFromDom() {
   return [...document.querySelectorAll('.gallery-editor-card')].map(card => ({
-    title: card.querySelector('[data-field="title"]').value,
-    image: card.querySelector('[data-field="image"]').value
+    title: card.querySelector('[data-field="title"]')?.value || '',
+    image: card.querySelector('[data-field="image"]')?.value || ''
   }));
 }
 
 function collectHomeSectionsFromDom() {
   return [...document.querySelectorAll('.home-section-editor-card')].map(card => ({
     title: {
-      de: card.querySelector('[data-field="title-de"]').value,
-      en: card.querySelector('[data-field="title-en"]').value,
-      tr: card.querySelector('[data-field="title-tr"]').value
+      de: card.querySelector('[data-field="title-de"]')?.value || '',
+      en: card.querySelector('[data-field="title-en"]')?.value || '',
+      tr: card.querySelector('[data-field="title-tr"]')?.value || ''
     },
     text: {
-      de: card.querySelector('[data-field="text-de"]').value,
-      en: card.querySelector('[data-field="text-en"]').value,
-      tr: card.querySelector('[data-field="text-tr"]').value
+      de: card.querySelector('[data-field="text-de"]')?.value || '',
+      en: card.querySelector('[data-field="text-en"]')?.value || '',
+      tr: card.querySelector('[data-field="text-tr"]')?.value || ''
     },
     button: {
-      de: card.querySelector('[data-field="button-de"]').value,
-      en: card.querySelector('[data-field="button-en"]').value,
-      tr: card.querySelector('[data-field="button-tr"]').value
+      de: card.querySelector('[data-field="button-de"]')?.value || '',
+      en: card.querySelector('[data-field="button-en"]')?.value || '',
+      tr: card.querySelector('[data-field="button-tr"]')?.value || ''
     },
-    link: card.querySelector('[data-field="link"]').value,
-    image: card.querySelector('[data-field="image"]').value
+    link: card.querySelector('[data-field="link"]')?.value || '',
+    image: card.querySelector('[data-field="image"]')?.value || ''
   }));
 }
 
@@ -290,9 +354,11 @@ function renderMenuEditor(catalog = {}) {
 
   root.innerHTML = categories.map(cat => `
     <section class="admin-edit-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="admin-card-head">
         <h3>${cat.label}</h3>
-        <button type="button" class="btn btn-secondary add-menu-item-btn" data-category="${cat.key}">+ Eintrag hinzufügen</button>
+        <button type="button" class="btn btn-secondary add-menu-item-btn" data-category="${cat.key}">
+          + Eintrag hinzufügen
+        </button>
       </div>
       <div class="menu-category-list" data-menu-category="${cat.key}">
         ${(catalog[cat.key] || []).map((item, i) => menuItemCardTemplate(item, cat.key, i)).join('')}
@@ -311,6 +377,54 @@ function renderHomeSectionsEditor(items = []) {
   const root = document.querySelector('#home-sections-editor');
   if (!root) return;
   root.innerHTML = items.map((item, i) => homeCardTemplate(item, i)).join('');
+}
+
+function renderOrderDetails(order) {
+  const payload = order?.payload || {};
+  const customer = payload.customer || {};
+  const packageInfo = payload.package || {};
+  const summary = payload.summary || {};
+  const checkedItems = Array.isArray(summary.checkedItems) ? summary.checkedItems : [];
+
+  const extrasHtml = checkedItems.length
+    ? `
+      <ul class="order-item-list">
+        ${checkedItems.map(item => `
+          <li>
+            <span>${escapeHtml(item.name || '-')}</span>
+            <strong>${euro(item.price)} / ${escapeHtml(item.unit || '')}</strong>
+          </li>
+        `).join('')}
+      </ul>
+    `
+    : '<p>Keine Extras ausgewählt.</p>';
+
+  return `
+    <div class="order-detail-grid">
+      <section class="order-detail-section">
+        <h4>Kunde</h4>
+        <p><strong>Name:</strong> ${escapeHtml(customer.name || order.customer_name || '-')}</p>
+        <p><strong>E-Mail:</strong> ${escapeHtml(customer.email || order.customer_email || '-')}</p>
+        <p><strong>Telefon:</strong> ${escapeHtml(customer.phone || '-')}</p>
+      </section>
+
+      <section class="order-detail-section">
+        <h4>Bestellung</h4>
+        <p><strong>Paket:</strong> ${escapeHtml(packageInfo.title?.de || order.package_slug || '-')}</p>
+        <p><strong>Slug:</strong> ${escapeHtml(packageInfo.slug || order.package_slug || '-')}</p>
+        <p><strong>Personen:</strong> ${Number(summary.persons || order.persons || 0)}</p>
+        <p><strong>Grundpreis pro Person:</strong> ${euro(packageInfo.price)}</p>
+        <p><strong>Grundpreis gesamt:</strong> ${euro(summary.baseTotal)}</p>
+        <p><strong>Extras gesamt:</strong> ${euro(summary.extrasTotal)}</p>
+        <p><strong>Gesamt:</strong> ${euro(summary.grandTotal || order.total_price)}</p>
+      </section>
+
+      <section class="order-detail-section order-detail-full">
+        <h4>Ausgewählte Extras</h4>
+        ${extrasHtml}
+      </section>
+    </div>
+  `;
 }
 
 async function renderOrders() {
@@ -346,11 +460,11 @@ async function renderOrders() {
           <p>
             <strong>${escapeHtml(order.customer_name || 'Unbekannt')}</strong><br>
             ${escapeHtml(order.customer_email || '')}<br>
-            Paket: ${escapeHtml(order.package_slug || '-')} · 
-            Personen: ${Number(order.persons || 0)} · 
-            Gesamt: ${Number(order.total_price || 0).toFixed(2)} €
+            Paket: ${escapeHtml(order.package_slug || '-')} ·
+            Personen: ${Number(order.persons || 0)} ·
+            Gesamt: ${euro(order.total_price)}
           </p>
-          <p>Erstellt: ${new Date(order.created_at).toLocaleString('de-DE')}</p>
+          <p>Erstellt: ${formatDateTime(order.created_at)}</p>
         </div>
 
         <div class="admin-order-actions">
@@ -367,7 +481,7 @@ async function renderOrders() {
 
       <details>
         <summary>Details anzeigen</summary>
-        <pre>${escapeHtml(JSON.stringify(order.payload, null, 2))}</pre>
+        ${renderOrderDetails(order)}
       </details>
     </article>
   `).join('');
@@ -376,20 +490,20 @@ async function renderOrders() {
 async function fillFormFields() {
   const data = await loadSiteData();
 
-  document.querySelector('#about-de').value = data.about?.de || '';
-  document.querySelector('#about-en').value = data.about?.en || '';
-  document.querySelector('#about-tr').value = data.about?.tr || '';
+  setValue('#about-de', data.about?.de || '');
+  setValue('#about-en', data.about?.en || '');
+  setValue('#about-tr', data.about?.tr || '');
 
-  document.querySelector('#contact-address').value = data.contact?.address || '';
-  document.querySelector('#contact-phone').value = data.contact?.phone || '';
-  document.querySelector('#contact-mail').value = data.contact?.mail || '';
+  setValue('#contact-address', data.contact?.address || '');
+  setValue('#contact-phone', data.contact?.phone || '');
+  setValue('#contact-mail', data.contact?.mail || '');
 
-  document.querySelector('#impressum-company').value = data.impressum?.company || '';
-  document.querySelector('#impressum-owner').value = data.impressum?.owner || '';
-  document.querySelector('#impressum-street').value = data.impressum?.street || '';
-  document.querySelector('#impressum-city').value = data.impressum?.city || '';
-  document.querySelector('#impressum-mail').value = data.impressum?.mail || '';
-  document.querySelector('#impressum-phone').value = data.impressum?.phone || '';
+  setValue('#impressum-company', data.impressum?.company || '');
+  setValue('#impressum-owner', data.impressum?.owner || '');
+  setValue('#impressum-street', data.impressum?.street || '');
+  setValue('#impressum-city', data.impressum?.city || '');
+  setValue('#impressum-mail', data.impressum?.mail || '');
+  setValue('#impressum-phone', data.impressum?.phone || '');
 
   renderTeamEditor(data.team || []);
   renderPricesEditor(data.priceLists || []);
@@ -423,6 +537,43 @@ async function deleteOrder(orderId) {
   if (error) throw error;
 }
 
+async function handleImageUpload(button) {
+  const card = button.closest('.team-editor-card, .gallery-editor-card, .home-section-editor-card');
+  if (!card) return;
+
+  const fileInput = card.querySelector('.image-file-input');
+  const urlInput = card.querySelector('[data-field="image"]');
+  const preview = card.querySelector('.admin-image-preview');
+  const uploadKind = button.getAttribute('data-upload-kind') || 'misc';
+
+  const file = fileInput?.files?.[0];
+  if (!file) {
+    msg('Bitte zuerst eine Bilddatei auswählen.', true);
+    return;
+  }
+
+  const oldText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Lade hoch...';
+
+  try {
+    const publicUrl = await uploadImageFile(file, uploadKind);
+    if (urlInput) urlInput.value = publicUrl;
+
+    if (preview) {
+      preview.src = publicUrl;
+      preview.hidden = false;
+    }
+
+    msg('Bild erfolgreich hochgeladen.');
+  } catch (error) {
+    msg(`Bild-Upload fehlgeschlagen: ${error.message}`, true);
+  } finally {
+    button.disabled = false;
+    button.textContent = oldText;
+  }
+}
+
 async function boot() {
   const gate = document.querySelector('#admin-gate');
   const app = document.querySelector('#admin-app');
@@ -432,14 +583,16 @@ async function boot() {
   const admin = await isAdmin();
 
   if (!session || !admin) {
-    gate.hidden = false;
-    app.hidden = true;
-    status.innerHTML = `<p>${CONFIG.demoAdminHint}</p><p>Du bist nicht als Admin freigeschaltet.</p>`;
+    if (gate) gate.hidden = false;
+    if (app) app.hidden = true;
+    if (status) {
+      status.innerHTML = `<p>${CONFIG.demoAdminHint}</p><p>Du bist nicht als Admin freigeschaltet.</p>`;
+    }
     return;
   }
 
-  gate.hidden = true;
-  app.hidden = false;
+  if (gate) gate.hidden = true;
+  if (app) app.hidden = false;
 
   await fillFormFields();
   await renderOrders();
@@ -451,58 +604,69 @@ document.addEventListener('click', async (event) => {
   if (event.target.matches('#logoutBtn')) {
     await logout();
     location.href = 'login.html';
+    return;
+  }
+
+  if (event.target.matches('.upload-image-btn')) {
+    await handleImageUpload(event.target);
+    return;
   }
 
   if (event.target.matches('#saveAboutBtn')) {
     try {
       await saveSection('about', {
-        de: document.querySelector('#about-de').value,
-        en: document.querySelector('#about-en').value,
-        tr: document.querySelector('#about-tr').value
+        de: document.querySelector('#about-de')?.value || '',
+        en: document.querySelector('#about-en')?.value || '',
+        tr: document.querySelector('#about-tr')?.value || ''
       });
       msg('Über uns gespeichert.');
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#saveContactBtn')) {
     try {
       await saveSection('contact', {
-        address: document.querySelector('#contact-address').value,
-        phone: document.querySelector('#contact-phone').value,
-        mail: document.querySelector('#contact-mail').value
+        address: document.querySelector('#contact-address')?.value || '',
+        phone: document.querySelector('#contact-phone')?.value || '',
+        mail: document.querySelector('#contact-mail')?.value || ''
       });
       msg('Kontakt gespeichert.');
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#saveImpressumBtn')) {
     try {
       await saveSection('impressum', {
-        company: document.querySelector('#impressum-company').value,
-        owner: document.querySelector('#impressum-owner').value,
-        street: document.querySelector('#impressum-street').value,
-        city: document.querySelector('#impressum-city').value,
-        mail: document.querySelector('#impressum-mail').value,
-        phone: document.querySelector('#impressum-phone').value
+        company: document.querySelector('#impressum-company')?.value || '',
+        owner: document.querySelector('#impressum-owner')?.value || '',
+        street: document.querySelector('#impressum-street')?.value || '',
+        city: document.querySelector('#impressum-city')?.value || '',
+        mail: document.querySelector('#impressum-mail')?.value || '',
+        phone: document.querySelector('#impressum-phone')?.value || ''
       });
       msg('Impressum gespeichert.');
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#addTeamMemberBtn')) {
     const current = collectTeamFromDom();
     current.push({ name: '', role: { de: '', en: '', tr: '' }, image: '' });
     renderTeamEditor(current);
+    return;
   }
 
   if (event.target.matches('.remove-team-btn')) {
     event.target.closest('.team-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#saveTeamBtn')) {
@@ -512,16 +676,19 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#addPriceBtn')) {
     const current = collectPricesFromDom();
     current.push({ title: { de: '', en: '', tr: '' }, price: 0, unit: 'person' });
     renderPricesEditor(current);
+    return;
   }
 
   if (event.target.matches('.remove-price-btn')) {
     event.target.closest('.price-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#savePricesBtn')) {
@@ -531,6 +698,7 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#addPackageBtn')) {
@@ -542,10 +710,12 @@ document.addEventListener('click', async (event) => {
       description: { de: '', en: '', tr: '' }
     });
     renderPackagesEditor(current);
+    return;
   }
 
   if (event.target.matches('.remove-package-btn')) {
     event.target.closest('.package-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#savePackagesBtn')) {
@@ -555,21 +725,25 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('.add-menu-item-btn')) {
     const category = event.target.getAttribute('data-category');
     const list = document.querySelector(`[data-menu-category="${category}"]`);
     if (!list) return;
+
     list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
       name: { de: '', en: '', tr: '' },
       price: 0,
       unit: 'portion'
     }, category, list.children.length));
+    return;
   }
 
   if (event.target.matches('.remove-menu-item-btn')) {
     event.target.closest('.menu-item-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#saveMenuBtn')) {
@@ -579,16 +753,19 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#addGalleryBtn')) {
     const current = collectGalleryFromDom();
     current.push({ title: '', image: '' });
     renderGalleryEditor(current);
+    return;
   }
 
   if (event.target.matches('.remove-gallery-btn')) {
     event.target.closest('.gallery-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#saveGalleryBtn')) {
@@ -598,6 +775,7 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('#addHomeSectionBtn')) {
@@ -610,10 +788,12 @@ document.addEventListener('click', async (event) => {
       image: ''
     });
     renderHomeSectionsEditor(current);
+    return;
   }
 
   if (event.target.matches('.remove-home-section-btn')) {
     event.target.closest('.home-section-editor-card')?.remove();
+    return;
   }
 
   if (event.target.matches('#saveHomeSectionsBtn')) {
@@ -623,6 +803,7 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('.save-order-status-btn')) {
@@ -639,6 +820,7 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 
   if (event.target.matches('.delete-order-btn')) {
