@@ -79,11 +79,11 @@ hr {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.header-inner {
+.nav-shell {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 28px;
   padding: 18px 0;
   flex-wrap: wrap;
 }
@@ -92,6 +92,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex-shrink: 0;
 }
 
 .brand-mark {
@@ -108,27 +109,33 @@ hr {
   color: #2a2220;
   font-weight: 800;
   box-shadow: 0 10px 20px rgba(255, 170, 80, 0.22);
+  flex-shrink: 0;
 }
 
-.brand-text {
+.brand-copy {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
-.brand-text strong {
+.brand-copy strong {
   font-size: 1.2rem;
+  line-height: 1.15;
 }
 
-.brand-text span {
+.brand-copy span {
   font-size: 0.95rem;
   opacity: 0.92;
+  line-height: 1.25;
 }
 
 .main-nav {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 18px;
+  flex: 1 1 420px;
   flex-wrap: wrap;
 }
 
@@ -136,20 +143,19 @@ hr {
   font-weight: 700;
   color: #fff;
   transition: color 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
 }
 
-.main-nav a:hover {
+.main-nav a:hover,
+.main-nav a.active {
   color: #ffd166;
-}
-
-.admin-link {
-  opacity: 0.95;
 }
 
 .lang-switch {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .lang-switch button {
