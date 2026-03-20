@@ -761,12 +761,15 @@ textarea {
 }
 
 @media (max-width: 900px) {
-  .header-inner {
+  .nav-shell {
     align-items: flex-start;
+    gap: 18px;
   }
 
   .main-nav {
     gap: 12px;
+    justify-content: flex-start;
+    flex: 1 1 100%;
   }
 
   .team-card {
