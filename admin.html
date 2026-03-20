@@ -1,109 +1,147 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Miss Catering</title>
   <link rel="stylesheet" href="assets/css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body data-title="Admin">
+
   <header class="site-header" data-header></header>
 
-  <main class="admin-layout">
+  <main class="page-shell">
     <div class="container">
-      <div id="admin-gate" class="admin-box" hidden>
+
+      <section id="admin-gate" class="admin-box" hidden>
         <h1>Admin Hinweis</h1>
         <div id="admin-status"></div>
-      </div>
+      </section>
 
-      <div id="admin-app" hidden>
+      <section id="admin-app" class="admin-layout" hidden>
         <div class="admin-box">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
-            <h1>Admin Dashboard</h1>
-            <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+          <div class="admin-card-head">
+            <h1>Admin Bereich</h1>
+            <button id="logoutBtn" type="button" class="btn btn-secondary">Logout</button>
           </div>
-          <p>Hier bearbeitest du die Inhalte direkt in Supabase.</p>
+          <p id="admin-message"></p>
         </div>
 
         <section class="admin-box">
           <h2>Über uns</h2>
-          <textarea id="about-de" rows="4" placeholder="Deutsch"></textarea>
-          <textarea id="about-en" rows="4" placeholder="English"></textarea>
-          <textarea id="about-tr" rows="4" placeholder="Türkçe"></textarea>
-          <button id="saveAboutBtn" class="btn btn-primary">Über uns speichern</button>
+          <div class="admin-grid">
+            <textarea id="about-de" rows="4" placeholder="Über uns DE"></textarea>
+            <textarea id="about-en" rows="4" placeholder="Über uns EN"></textarea>
+            <textarea id="about-tr" rows="4" placeholder="Über uns TR"></textarea>
+          </div>
+          <div style="margin-top:16px;">
+            <button id="saveAboutBtn" type="button" class="btn btn-primary">Über uns speichern</button>
+          </div>
         </section>
 
         <section class="admin-box">
           <h2>Kontakt</h2>
-          <input id="contact-address" type="text" placeholder="Adresse">
-          <input id="contact-phone" type="text" placeholder="Telefon">
-          <input id="contact-mail" type="email" placeholder="E-Mail">
-          <button id="saveContactBtn" class="btn btn-primary">Kontakt speichern</button>
+          <div class="admin-grid">
+            <input id="contact-address" type="text" placeholder="Adresse">
+            <input id="contact-phone" type="text" placeholder="Telefon">
+            <input id="contact-mail" type="email" placeholder="E-Mail">
+          </div>
+          <div style="margin-top:16px;">
+            <button id="saveContactBtn" type="button" class="btn btn-primary">Kontakt speichern</button>
+          </div>
         </section>
 
         <section class="admin-box">
           <h2>Impressum</h2>
-          <input id="impressum-company" type="text" placeholder="Firma">
-          <input id="impressum-owner" type="text" placeholder="Inhaber">
-          <input id="impressum-street" type="text" placeholder="Straße">
-          <input id="impressum-city" type="text" placeholder="Ort">
-          <input id="impressum-mail" type="email" placeholder="E-Mail">
-          <input id="impressum-phone" type="text" placeholder="Telefon">
-          <button id="saveImpressumBtn" class="btn btn-primary">Impressum speichern</button>
+          <div class="admin-grid">
+            <input id="impressum-company" type="text" placeholder="Firma">
+            <input id="impressum-owner" type="text" placeholder="Inhaber">
+            <input id="impressum-street" type="text" placeholder="Straße">
+            <input id="impressum-city" type="text" placeholder="Ort / PLZ">
+            <input id="impressum-mail" type="email" placeholder="E-Mail">
+            <input id="impressum-phone" type="text" placeholder="Telefon">
+          </div>
+          <div style="margin-top:16px;">
+            <button id="saveImpressumBtn" type="button" class="btn btn-primary">Impressum speichern</button>
+          </div>
         </section>
 
         <section class="admin-box">
-          <h2>Mitarbeiter</h2>
-          <p>Name, Rolle in 3 Sprachen und Bild-URL bearbeiten.</p>
+          <div class="admin-card-head">
+            <div>
+              <h2>Mitarbeiter</h2>
+              <p>Name, Rolle in 3 Sprachen und Bild-URL bearbeiten oder Bild hochladen.</p>
+            </div>
+            <button id="addTeamMemberBtn" type="button" class="btn btn-secondary">+ Mitarbeiter hinzufügen</button>
+          </div>
           <div id="team-editor"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
-            <button id="addTeamMemberBtn" class="btn btn-secondary">+ Mitarbeiter hinzufügen</button>
-            <button id="saveTeamBtn" class="btn btn-primary">Mitarbeiter speichern</button>
+          <div style="margin-top:16px;">
+            <button id="saveTeamBtn" type="button" class="btn btn-primary">Mitarbeiter speichern</button>
           </div>
         </section>
 
         <section class="admin-box">
-          <h2>Preislisten</h2>
+          <div class="admin-card-head">
+            <div>
+              <h2>Preislisten</h2>
+              <p>Titel in 3 Sprachen, Preis und Einheit pflegen.</p>
+            </div>
+            <button id="addPriceBtn" type="button" class="btn btn-secondary">+ Preis hinzufügen</button>
+          </div>
           <div id="prices-editor"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
-            <button id="addPriceBtn" class="btn btn-secondary">+ Preis hinzufügen</button>
-            <button id="savePricesBtn" class="btn btn-primary">Preislisten speichern</button>
+          <div style="margin-top:16px;">
+            <button id="savePricesBtn" type="button" class="btn btn-primary">Preislisten speichern</button>
           </div>
         </section>
 
         <section class="admin-box">
-          <h2>Pakete</h2>
+          <div class="admin-card-head">
+            <div>
+              <h2>Pakete</h2>
+              <p>Slug, Preis, Titel und Beschreibung in 3 Sprachen bearbeiten.</p>
+            </div>
+            <button id="addPackageBtn" type="button" class="btn btn-secondary">+ Paket hinzufügen</button>
+          </div>
           <div id="packages-editor"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
-            <button id="addPackageBtn" class="btn btn-secondary">+ Paket hinzufügen</button>
-            <button id="savePackagesBtn" class="btn btn-primary">Pakete speichern</button>
+          <div style="margin-top:16px;">
+            <button id="savePackagesBtn" type="button" class="btn btn-primary">Pakete speichern</button>
           </div>
         </section>
 
         <section class="admin-box">
           <h2>Menü</h2>
-          <p>Fingerfood, Vorspeisen, Hauptgerichte und Desserts bearbeiten.</p>
+          <p>Fingerfood, Vorspeisen, Hauptgerichte und Desserts pflegen.</p>
           <div id="menu-editor"></div>
-          <button id="saveMenuBtn" class="btn btn-primary" style="margin-top:14px;">Menü speichern</button>
-        </section>
-
-        <section class="admin-box">
-          <h2>Galerie</h2>
-          <div id="gallery-editor"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
-            <button id="addGalleryBtn" class="btn btn-secondary">+ Bild hinzufügen</button>
-            <button id="saveGalleryBtn" class="btn btn-primary">Galerie speichern</button>
+          <div style="margin-top:16px;">
+            <button id="saveMenuBtn" type="button" class="btn btn-primary">Menü speichern</button>
           </div>
         </section>
 
         <section class="admin-box">
-          <h2>Startseite Premium-Kacheln</h2>
-          <p>Titel, Beschreibung, Button, Link und Bild-URL bearbeiten.</p>
+          <div class="admin-card-head">
+            <div>
+              <h2>Galerie</h2>
+              <p>Titel und Bild-URL pflegen oder Bild direkt hochladen.</p>
+            </div>
+            <button id="addGalleryBtn" type="button" class="btn btn-secondary">+ Bild hinzufügen</button>
+          </div>
+          <div id="gallery-editor"></div>
+          <div style="margin-top:16px;">
+            <button id="saveGalleryBtn" type="button" class="btn btn-primary">Galerie speichern</button>
+          </div>
+        </section>
+
+        <section class="admin-box">
+          <div class="admin-card-head">
+            <div>
+              <h2>Startseiten-Kacheln</h2>
+              <p>Titel, Text, Button, Link und Bild pflegen oder Bild hochladen.</p>
+            </div>
+            <button id="addHomeSectionBtn" type="button" class="btn btn-secondary">+ Kachel hinzufügen</button>
+          </div>
           <div id="home-sections-editor"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
-            <button id="addHomeSectionBtn" class="btn btn-secondary">+ Kachel hinzufügen</button>
-            <button id="saveHomeSectionsBtn" class="btn btn-primary">Startseite speichern</button>
+          <div style="margin-top:16px;">
+            <button id="saveHomeSectionsBtn" type="button" class="btn btn-primary">Startseiten-Kacheln speichern</button>
           </div>
         </section>
 
@@ -111,16 +149,14 @@
           <h2>Bestellarchiv</h2>
           <div id="orders-list"></div>
         </section>
+      </section>
 
-        <section class="admin-box">
-          <p id="admin-message"></p>
-        </section>
-      </div>
     </div>
   </main>
 
   <footer class="site-footer" data-footer></footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module" src="assets/js/admin.js"></script>
 </body>
