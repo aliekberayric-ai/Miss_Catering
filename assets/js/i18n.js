@@ -1,6 +1,6 @@
 export const translations = {
   de: {
-    homeHeroTitle: 'Türkisches Catering mit Stil',
+    homeHeroTitle: 'Catering mit Stil',
     homeHeroText: 'Modern, herzlich und voller Geschmack – für Business, Hochzeiten, Geburtstage und Streetfood Events.',
     ctaPackages: 'Pakete entdecken',
     ctaMenu: 'Menü ansehen',
