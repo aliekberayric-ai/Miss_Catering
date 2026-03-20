@@ -3,61 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paket Builder</title>
+  <title>Paket Builder | Miss Catering</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
+<body data-title="Paket Builder">
 
-<header class="site-header" data-header></header>
+  <header class="site-header" data-header></header>
 
-<main class="page-shell">
-  <div class="container">
+  <main class="page-shell">
+    <div class="container">
 
-    <h1 id="package-title"></h1>
-    <p id="package-description"></p>
-    <p>Preis: <strong id="package-base-price"></strong></p>
+      <section class="builder-hero content-card">
+        <h1 id="package-title">Paket</h1>
+        <p id="package-description"></p>
+        <p class="builder-base-price">
+          Preis pro Person: <strong id="package-base-price">0,00 €</strong>
+        </p>
+      </section>
 
-    <h2>Kundendaten</h2>
-    <input id="customer-name" placeholder="Name">
-    <input id="customer-email" placeholder="E-Mail">
-    <input id="customer-phone" placeholder="Telefon">
-    <input id="persons-count" type="number" value="10">
+      <section class="builder-layout">
 
-    <h2>Fingerfood</h2>
-    <div id="fingerfood-list"></div>
+        <div class="builder-main">
 
-    <h2>Vorspeisen</h2>
-    <div id="starters-list"></div>
+          <section class="content-card">
+            <h2>Kundendaten</h2>
+            <div class="builder-form-grid">
+              <input id="customer-name" type="text" placeholder="Name">
+              <input id="customer-email" type="email" placeholder="E-Mail">
+              <input id="customer-phone" type="text" placeholder="Telefon">
+              <input id="persons-count" type="number" min="1" value="10" placeholder="Personenanzahl">
+            </div>
+          </section>
 
-    <h2>Hauptgerichte</h2>
-    <div id="mains-list"></div>
+          <section class="content-card">
+            <h2>Fingerfood</h2>
+            <div id="fingerfood-list" class="builder-options-list"></div>
+          </section>
 
-    <h2>Desserts</h2>
-    <div id="desserts-list"></div>
+          <section class="content-card">
+            <h2>Vorspeisen</h2>
+            <div id="starters-list" class="builder-options-list"></div>
+          </section>
 
-    <hr>
+          <section class="content-card">
+            <h2>Hauptgerichte</h2>
+            <div id="mains-list" class="builder-options-list"></div>
+          </section>
 
-    <h2>Zusammenfassung</h2>
-    <p>Paket: <span id="summary-package-name"></span></p>
-    <p>Personen: <span id="summary-persons"></span></p>
-    <p>Grundpreis: <span id="summary-base-total"></span></p>
-    <p>Extras: <span id="summary-extras-total"></span></p>
-    <p>Gesamt: <strong id="summary-grand-total"></strong></p>
+          <section class="content-card">
+            <h2>Desserts</h2>
+            <div id="desserts-list" class="builder-options-list"></div>
+          </section>
 
-    <button id="save-order-btn">Bestellen</button>
-    <button id="print-order-btn">Drucken</button>
+        </div>
 
-    <div id="selected-items-preview"></div>
-    <p id="builder-message"></p>
+        <aside class="builder-sidebar">
+          <section class="content-card builder-summary-card">
+            <h2>Zusammenfassung</h2>
 
-  </div>
-</main>
+            <div class="summary-line">
+              <span>Paket</span>
+              <strong id="summary-package-name">-</strong>
+            </div>
 
-<footer class="site-footer" data-footer></footer>
+            <div class="summary-line">
+              <span>Personen</span>
+              <strong id="summary-persons">0</strong>
+            </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="assets/js/app.js"></script>
-<script type="module" src="assets/js/order.js"></script>
+            <div class="summary-line">
+              <span>Grundpreis gesamt</span>
+              <strong id="summary-base-total">0,00 €</strong>
+            </div>
+
+            <div class="summary-line">
+              <span>Extras gesamt</span>
+              <strong id="summary-extras-total">0,00 €</strong>
+            </div>
+
+            <hr>
+
+            <div class="summary-line summary-total">
+              <span>Gesamt</span>
+              <strong id="summary-grand-total">0,00 €</strong>
+            </div>
+
+            <div class="builder-actions">
+              <button id="save-order-btn" class="btn btn-primary" type="button">Bestellung speichern</button>
+              <button id="print-order-btn" class="btn btn-secondary" type="button">Rechnung / Drucken</button>
+            </div>
+
+            <p id="builder-message"></p>
+          </section>
+
+          <section class="content-card">
+            <h3>Ausgewählte Extras</h3>
+            <div id="selected-items-preview"></div>
+          </section>
+        </aside>
+
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer" data-footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module" src="assets/js/order.js"></script>
 
 </body>
 </html>
