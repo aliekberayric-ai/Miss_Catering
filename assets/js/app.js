@@ -35,7 +35,7 @@ function buildHeader(data, lang) {
         <div class="brand-mark">${safe(data.branding?.logoText || "MC")}</div>
         <div class="brand-text">
           <strong>Miss Catering</strong>
-          <span>${safe(langText(data.branding?.tagline, lang) || "Türkische Speisen mit Eleganz")}</span>
+          <span>${safe(langText(data.branding?.tagline, lang) || "Speisen mit Eleganz")}</span>
         </div>
       </a>
 
@@ -71,7 +71,7 @@ function buildFooter(data, lang) {
     <div class="container footer-grid">
       <div>
         <strong>Miss Catering</strong>
-        <p>${safe(langText(data.branding?.tagline, lang) || "Türkische Speisen mit Eleganz")}</p>
+        <p>${safe(langText(data.branding?.tagline, lang) || "Speisen mit Eleganz")}</p>
       </div>
 
       <div>
