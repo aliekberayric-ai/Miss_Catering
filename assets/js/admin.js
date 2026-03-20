@@ -623,4 +623,37 @@ document.addEventListener('click', async (event) => {
       msg(`Fehler: ${error.message}`, true);
     }
   }
+
+   if (event.target.matches('.save-order-status-btn')) {
+    try {
+      const card = event.target.closest('.admin-order-card');
+      if (!card) return;
+
+      const orderId = Number(card.getAttribute('data-order-id'));
+      const status = card.querySelector('.order-status-select')?.value || 'neu';
+
+      await updateOrderStatus(orderId, status);
+      msg('Bestellstatus gespeichert.');
+      await renderOrders();
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }
+
+  if (event.target.matches('.delete-order-btn')) {
+    try {
+      const card = event.target.closest('.admin-order-card');
+      if (!card) return;
+
+      const orderId = Number(card.getAttribute('data-order-id'));
+      const confirmed = window.confirm(`Bestellung #${orderId} wirklich löschen?`);
+      if (!confirmed) return;
+
+      await deleteOrder(orderId);
+      msg('Bestellung gelöscht.');
+      await renderOrders();
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
+  }  
 });
