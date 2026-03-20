@@ -313,7 +313,6 @@ function renderHomeSectionsEditor(items = []) {
   root.innerHTML = items.map((item, i) => homeCardTemplate(item, i)).join('');
 }
 
-async function renderOrders() {
   const list = document.querySelector('#orders-list');
   if (!list) return;
 
@@ -339,12 +338,34 @@ async function renderOrders() {
   }
 
   list.innerHTML = data.map(order => `
-    <article class="admin-order-card">
-      <h3>Bestellung #${order.id}</h3>
-      <p><strong>${escapeHtml(order.customer_name || '')}</strong> · ${escapeHtml(order.customer_email || '')} · ${order.persons || 0} Personen</p>
-      <p><strong>Gesamt:</strong> ${Number(order.total_price || 0).toFixed(2)} €</p>
+    <article class="admin-order-card" data-order-id="${order.id}">
+      <div class="admin-order-header">
+        <div>
+          <h3>Bestellung #${order.id}</h3>
+          <p>
+            <strong>${escapeHtml(order.customer_name || 'Unbekannt')}</strong><br>
+            ${escapeHtml(order.customer_email || '')}<br>
+            Paket: ${escapeHtml(order.package_slug || '-')} · 
+            Personen: ${Number(order.persons || 0)} · 
+            Gesamt: ${Number(order.total_price || 0).toFixed(2)} €
+          </p>
+          <p>Erstellt: ${new Date(order.created_at).toLocaleString('de-DE')}</p>
+        </div>
+
+        <div class="admin-order-actions">
+          <select class="order-status-select">
+            <option value="neu" ${order.status === 'neu' ? 'selected' : ''}>Neu</option>
+            <option value="bearbeitet" ${order.status === 'bearbeitet' ? 'selected' : ''}>Bearbeitet</option>
+            <option value="erledigt" ${order.status === 'erledigt' ? 'selected' : ''}>Erledigt</option>
+          </select>
+
+          <button type="button" class="btn btn-primary save-order-status-btn">Status speichern</button>
+          <button type="button" class="btn btn-secondary delete-order-btn">Löschen</button>
+        </div>
+      </div>
+
       <details>
-        <summary>Payload anzeigen</summary>
+        <summary>Details anzeigen</summary>
         <pre>${escapeHtml(JSON.stringify(order.payload, null, 2))}</pre>
       </details>
     </article>
