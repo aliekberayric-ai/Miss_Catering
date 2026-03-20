@@ -877,3 +877,239 @@ setze ihn durch:
   margin-top: 18px;
   align-items: stretch;
 }
+/* =========================
+   ADMIN CARD HEAD
+========================= */
+
+.admin-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.admin-card-head h3 {
+  margin: 0;
+}
+
+/* =========================
+   ADMIN IMAGE UPLOAD
+========================= */
+
+.admin-image-tools {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-image-preview {
+  width: 100%;
+  max-width: 340px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+}
+
+/* =========================
+   ADMIN ORDERS PANEL
+========================= */
+
+.admin-order-card {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-order-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-order-header h3 {
+  margin: 0 0 8px;
+}
+
+.admin-order-header p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.admin-order-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.order-status-select {
+  min-width: 220px;
+}
+
+.admin-order-card details {
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.admin-order-card summary {
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.order-detail-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.order-detail-section h4 {
+  margin: 0 0 12px;
+}
+
+.order-detail-section p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.order-detail-full {
+  grid-column: 1 / -1;
+}
+
+.order-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.order-item-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.order-item-list li:last-child {
+  border-bottom: none;
+}
+
+.order-item-list span,
+.order-item-list strong {
+  word-break: break-word;
+}
+
+/* =========================
+   LANGUAGE BUTTON CENTER FIX
+========================= */
+
+.lang-switch button {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  text-align: center;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  text-align: center;
+  background: linear-gradient(135deg, #ffcc4d, #ff9f43);
+  color: #2a2220;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(255, 170, 80, 0.22);
+}
+
+/* =========================
+   MENU CARD POLISH
+========================= */
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 18px;
+  align-items: stretch;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  backdrop-filter: blur(10px);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,204,77,0.45);
+  box-shadow: 0 18px 34px rgba(0,0,0,0.24);
+}
+
+.menu-card h3 {
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.menu-price {
+  margin: 0;
+  color: #ffd166;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 700px) {
+  .admin-order-actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .order-status-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .order-item-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
