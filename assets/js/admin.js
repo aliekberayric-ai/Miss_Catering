@@ -1,7 +1,7 @@
 import { CONFIG } from './config.js';
 import { getSession, isAdmin, logout } from './auth.js';
 import { getSupabaseClient } from './supabase.js';
-import { loadSiteData, clearSiteDataCache, pickLang } from './data.js';
+import { loadSiteData, clearSiteDataCache } from './data.js';
 
 function escapeHtml(text = '') {
   return String(text).replace(/[&<>"]/g, char => ({
@@ -313,6 +313,7 @@ function renderHomeSectionsEditor(items = []) {
   root.innerHTML = items.map((item, i) => homeCardTemplate(item, i)).join('');
 }
 
+async function renderOrders() {
   const list = document.querySelector('#orders-list');
   if (!list) return;
 
@@ -624,7 +625,7 @@ document.addEventListener('click', async (event) => {
     }
   }
 
-   if (event.target.matches('.save-order-status-btn')) {
+  if (event.target.matches('.save-order-status-btn')) {
     try {
       const card = event.target.closest('.admin-order-card');
       if (!card) return;
@@ -655,5 +656,5 @@ document.addEventListener('click', async (event) => {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
-  }  
+  }
 });
