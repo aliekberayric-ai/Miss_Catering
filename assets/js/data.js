@@ -32,7 +32,7 @@ async function loadFromSupabase() {
 async function loadJsonFallback() {
   try {
     const res = await fetch('./assets/data/site-data.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Fallback JSON not found: ${res.status}`);
+    if (!res.ok) throw new Error(⁠ Fallback JSON not found: ${res.status} ⁠);
     return await res.json();
   } catch (error) {
     console.warn('JSON fallback failed:', error.message);
