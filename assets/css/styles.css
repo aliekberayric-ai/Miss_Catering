@@ -767,3 +767,71 @@ textarea {
     height: 40px;
   }
 }
+/* =========================
+   ADMIN ORDERS PANEL
+========================= */
+
+.admin-order-card {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-order-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-order-header h3 {
+  margin: 0 0 8px;
+}
+
+.admin-order-header p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.admin-order-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.order-status-select {
+  min-width: 220px;
+}
+
+.admin-order-card details {
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.admin-order-card summary {
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.admin-order-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 700px) {
+  .admin-order-actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .order-status-select {
+    min-width: 0;
+    width: 100%;
+  }
+}
