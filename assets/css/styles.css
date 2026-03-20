@@ -868,3 +868,11 @@ setze ihn durch:
     width: 100%;
   }
 }
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 18px;
+  align-items: stretch;
+}
