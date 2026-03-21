@@ -4,8 +4,6 @@ import { getSupabaseClient } from './supabase.js';
 import { loadSiteData, clearSiteDataCache } from './data.js';
 import { uploadImage } from './storage.js';
 
-const STORAGE_BUCKET = 'site-images';
-
 function escapeHtml(text = '') {
   return String(text).replace(/[&<>"]/g, char => ({
     '&': '&amp;',
@@ -15,17 +13,9 @@ function escapeHtml(text = '') {
   }[char]));
 }
 
-function euro(value = 0) {
-  return `${Number(value || 0).toFixed(2).replace('.', ',')} €`;
-}
-
-function formatDateTime(value) {
-  if (!value) return '-';
-  try {
-    return new Date(value).toLocaleString('de-DE');
-  } catch {
-    return String(value);
-  }
+function setValue(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.value = value ?? '';
 }
 
 function msg(text, isError = false) {
@@ -33,11 +23,6 @@ function msg(text, isError = false) {
   if (!el) return;
   el.textContent = text;
   el.style.color = isError ? '#ff8a8a' : '#9ff0b7';
-}
-
-function setValue(selector, value) {
-  const el = document.querySelector(selector);
-  if (el) el.value = value ?? '';
 }
 
 async function saveSection(sectionKey, payload) {
@@ -52,46 +37,9 @@ async function saveSection(sectionKey, payload) {
   clearSiteDataCache();
 }
 
-async function uploadImageFile(file, folder = 'misc') {
-  const supabase = getSupabaseClient();
-  if (!supabase) throw new Error('Supabase nicht verbunden.');
-  if (!file) throw new Error('Keine Datei ausgewählt.');
-
-  const safeName = String(file.name || 'bild')
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, '-');
-
-  const unique = (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-  const path = `${folder}/${unique}-${safeName}`;
-
-  const { error: uploadError } = await supabase
-    .storage
-    .from(STORAGE_BUCKET)
-    .upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-      contentType: file.type || undefined
-    });
-
-  if (uploadError) throw uploadError;
-
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-function uploadControlsTemplate(kind = 'misc', image = '') {
-  return `
-    <div class="admin-image-tools">
-      <div class="admin-grid">
-        <input class="image-file-input" type="file" accept="image/*">
-        <button type="button" class="btn btn-secondary upload-image-btn" data-upload-kind="${escapeHtml(kind)}">
-          Bild hochladen
-        </button>
-      </div>
-      <img class="admin-image-preview" src="${escapeHtml(image || '')}" alt="" ${image ? '' : 'hidden'}>
-    </div>
-  `;
-}
+/* =========================
+   TEMPLATES
+========================= */
 
 function teamCardTemplate(item = {}, index = 0) {
   return `
@@ -100,6 +48,7 @@ function teamCardTemplate(item = {}, index = 0) {
         <h3>${escapeHtml(item.name || `Mitarbeiter ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-team-btn">Entfernen</button>
       </div>
+
       <div class="admin-grid">
         <input data-field="name" type="text" placeholder="Name" value="${escapeHtml(item.name || '')}">
         <input data-field="role-de" type="text" placeholder="Rolle DE" value="${escapeHtml(item.role?.de || '')}">
@@ -107,7 +56,6 @@ function teamCardTemplate(item = {}, index = 0) {
         <input data-field="role-tr" type="text" placeholder="Rolle TR" value="${escapeHtml(item.role?.tr || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
-      ${uploadControlsTemplate('team', item.image || '')}
     </article>
   `;
 }
@@ -119,6 +67,7 @@ function priceCardTemplate(item = {}, index = 0) {
         <h3>${escapeHtml(item.title?.de || `Preis ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-price-btn">Entfernen</button>
       </div>
+
       <div class="admin-grid">
         <input data-field="title-de" type="text" placeholder="Titel DE" value="${escapeHtml(item.title?.de || '')}">
         <input data-field="title-en" type="text" placeholder="Titel EN" value="${escapeHtml(item.title?.en || '')}">
@@ -140,6 +89,7 @@ function packageCardTemplate(item = {}, index = 0) {
         <h3>${escapeHtml(item.title?.de || `Paket ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-package-btn">Entfernen</button>
       </div>
+
       <div class="admin-grid">
         <input data-field="slug" type="text" placeholder="Slug" value="${escapeHtml(item.slug || '')}">
         <input data-field="price" type="number" step="0.01" placeholder="Preis pro Person" value="${escapeHtml(item.price ?? item.basePricePerPerson ?? '')}">
@@ -147,6 +97,7 @@ function packageCardTemplate(item = {}, index = 0) {
         <input data-field="title-en" type="text" placeholder="Titel EN" value="${escapeHtml(item.title?.en || '')}">
         <input data-field="title-tr" type="text" placeholder="Titel TR" value="${escapeHtml(item.title?.tr || '')}">
       </div>
+
       <div class="admin-grid">
         <textarea data-field="desc-de" rows="3" placeholder="Beschreibung DE">${escapeHtml(item.description?.de || '')}</textarea>
         <textarea data-field="desc-en" rows="3" placeholder="Beschreibung EN">${escapeHtml(item.description?.en || '')}</textarea>
@@ -163,6 +114,7 @@ function menuItemCardTemplate(item = {}, category = '', index = 0) {
         <h3>${escapeHtml(item.name?.de || `${category} ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-menu-item-btn">Entfernen</button>
       </div>
+
       <div class="admin-grid">
         <input data-field="name-de" type="text" placeholder="Name DE" value="${escapeHtml(item.name?.de || '')}">
         <input data-field="name-en" type="text" placeholder="Name EN" value="${escapeHtml(item.name?.en || '')}">
@@ -184,11 +136,11 @@ function galleryCardTemplate(item = {}, index = 0) {
         <h3>${escapeHtml(item.title || `Bild ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-gallery-btn">Entfernen</button>
       </div>
+
       <div class="admin-grid">
         <input data-field="title" type="text" placeholder="Titel" value="${escapeHtml(item.title || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
-      ${uploadControlsTemplate('gallery', item.image || '')}
     </article>
   `;
 }
@@ -220,13 +172,16 @@ function homeCardTemplate(item = {}, index = 0) {
       </div>
 
       <div class="admin-grid">
-        <input data-field="link" type="text" placeholder="Link, z.B. about.html" value="${escapeHtml(item.link || '')}">
+        <input data-field="link" type="text" placeholder="Link, z. B. about.html" value="${escapeHtml(item.link || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
-      ${uploadControlsTemplate('home', item.image || '')}
     </article>
   `;
 }
+
+/* =========================
+   COLLECTORS
+========================= */
 
 function collectTeamFromDom() {
   return [...document.querySelectorAll('.team-editor-card')].map(card => ({
@@ -324,6 +279,10 @@ function collectHomeSectionsFromDom() {
   }));
 }
 
+/* =========================
+   RENDERERS
+========================= */
+
 function renderTeamEditor(items = []) {
   const root = document.querySelector('#team-editor');
   if (!root) return;
@@ -357,9 +316,7 @@ function renderMenuEditor(catalog = {}) {
     <section class="admin-edit-card">
       <div class="admin-card-head">
         <h3>${cat.label}</h3>
-        <button type="button" class="btn btn-secondary add-menu-item-btn" data-category="${cat.key}">
-          + Eintrag hinzufügen
-        </button>
+        <button type="button" class="btn btn-secondary add-menu-item-btn" data-category="${cat.key}">+ Eintrag hinzufügen</button>
       </div>
       <div class="menu-category-list" data-menu-category="${cat.key}">
         ${(catalog[cat.key] || []).map((item, i) => menuItemCardTemplate(item, cat.key, i)).join('')}
@@ -381,19 +338,16 @@ function renderHomeSectionsEditor(items = []) {
 }
 
 function renderOrderDetails(order) {
-  const payload = order?.payload || {};
-  const customer = payload.customer || {};
-  const packageInfo = payload.package || {};
-  const summary = payload.summary || {};
-  const checkedItems = Array.isArray(summary.checkedItems) ? summary.checkedItems : [];
+  const payload = order.payload || {};
+  const selected = payload.selectedItems || payload.selectedExtras || [];
 
-  const extrasHtml = checkedItems.length
+  const selectedItemsHtml = Array.isArray(selected) && selected.length
     ? `
       <ul class="order-item-list">
-        ${checkedItems.map(item => `
+        ${selected.map(item => `
           <li>
-            <span>${escapeHtml(item.name || '-')}</span>
-            <strong>${euro(item.price)} / ${escapeHtml(item.unit || '')}</strong>
+            <span>${escapeHtml(item.name || item.title || '-')}</span>
+            <strong>${escapeHtml(String(item.priceLabel || item.price || ''))}</strong>
           </li>
         `).join('')}
       </ul>
@@ -403,26 +357,23 @@ function renderOrderDetails(order) {
   return `
     <div class="order-detail-grid">
       <section class="order-detail-section">
-        <h4>Kunde</h4>
-        <p><strong>Name:</strong> ${escapeHtml(customer.name || order.customer_name || '-')}</p>
-        <p><strong>E-Mail:</strong> ${escapeHtml(customer.email || order.customer_email || '-')}</p>
-        <p><strong>Telefon:</strong> ${escapeHtml(customer.phone || '-')}</p>
+        <h4>Kundendaten</h4>
+        <p><strong>Name:</strong> ${escapeHtml(order.customer_name || '-')}</p>
+        <p><strong>E-Mail:</strong> ${escapeHtml(order.customer_email || '-')}</p>
+        <p><strong>Paket:</strong> ${escapeHtml(order.package_slug || '-')}</p>
+        <p><strong>Personen:</strong> ${escapeHtml(String(order.persons || 0))}</p>
+        <p><strong>Gesamt:</strong> ${escapeHtml(Number(order.total_price || 0).toFixed(2))} €</p>
       </section>
 
       <section class="order-detail-section">
-        <h4>Bestellung</h4>
-        <p><strong>Paket:</strong> ${escapeHtml(packageInfo.title?.de || order.package_slug || '-')}</p>
-        <p><strong>Slug:</strong> ${escapeHtml(packageInfo.slug || order.package_slug || '-')}</p>
-        <p><strong>Personen:</strong> ${Number(summary.persons || order.persons || 0)}</p>
-        <p><strong>Grundpreis pro Person:</strong> ${euro(packageInfo.price)}</p>
-        <p><strong>Grundpreis gesamt:</strong> ${euro(summary.baseTotal)}</p>
-        <p><strong>Extras gesamt:</strong> ${euro(summary.extrasTotal)}</p>
-        <p><strong>Gesamt:</strong> ${euro(summary.grandTotal || order.total_price)}</p>
+        <h4>Status</h4>
+        <p><strong>Aktuell:</strong> ${escapeHtml(order.status || 'neu')}</p>
+        <p><strong>Erstellt:</strong> ${escapeHtml(new Date(order.created_at).toLocaleString('de-DE'))}</p>
       </section>
 
       <section class="order-detail-section order-detail-full">
         <h4>Ausgewählte Extras</h4>
-        ${extrasHtml}
+        ${selectedItemsHtml}
       </section>
     </div>
   `;
@@ -463,9 +414,9 @@ async function renderOrders() {
             ${escapeHtml(order.customer_email || '')}<br>
             Paket: ${escapeHtml(order.package_slug || '-')} ·
             Personen: ${Number(order.persons || 0)} ·
-            Gesamt: ${euro(order.total_price)}
+            Gesamt: ${Number(order.total_price || 0).toFixed(2)} €
           </p>
-          <p>Erstellt: ${formatDateTime(order.created_at)}</p>
+          <p>Erstellt: ${new Date(order.created_at).toLocaleString('de-DE')}</p>
         </div>
 
         <div class="admin-order-actions">
@@ -488,21 +439,24 @@ async function renderOrders() {
   `).join('');
 }
 
+/* =========================
+   FORM FILL
+========================= */
+
 async function fillFormFields() {
   const data = await loadSiteData();
 
   setValue('#branding-logoText', data.branding?.logoText || 'MC');
+  setValue('#branding-logoImage', data.branding?.logoImage || '');
   setValue('#branding-tagline-de', data.branding?.tagline?.de || '');
   setValue('#branding-tagline-en', data.branding?.tagline?.en || '');
   setValue('#branding-tagline-tr', data.branding?.tagline?.tr || '');
 
- setValue('#branding-logoImage', data.branding?.logoImage || '');
-
-const brandingPreview = document.querySelector('#branding-logoPreview');
-if (brandingPreview) {
-  brandingPreview.src = data.branding?.logoImage || '';
-  brandingPreview.style.display = data.branding?.logoImage ? 'block' : 'none';
-}
+  const brandingPreview = document.querySelector('#branding-logoPreview');
+  if (brandingPreview) {
+    brandingPreview.src = data.branding?.logoImage || '';
+    brandingPreview.style.display = data.branding?.logoImage ? 'block' : 'none';
+  }
 
   setValue('#about-de', data.about?.de || '');
   setValue('#about-en', data.about?.en || '');
@@ -526,6 +480,10 @@ if (brandingPreview) {
   renderGalleryEditor(data.gallery || []);
   renderHomeSectionsEditor(data.homeSections || []);
 }
+
+/* =========================
+   ORDERS ACTIONS
+========================= */
 
 async function updateOrderStatus(orderId, status) {
   const supabase = getSupabaseClient();
@@ -551,42 +509,9 @@ async function deleteOrder(orderId) {
   if (error) throw error;
 }
 
-async function handleImageUpload(button) {
-  const card = button.closest('.team-editor-card, .gallery-editor-card, .home-section-editor-card');
-  if (!card) return;
-
-  const fileInput = card.querySelector('.image-file-input');
-  const urlInput = card.querySelector('[data-field="image"]');
-  const preview = card.querySelector('.admin-image-preview');
-  const uploadKind = button.getAttribute('data-upload-kind') || 'misc';
-
-  const file = fileInput?.files?.[0];
-  if (!file) {
-    msg('Bitte zuerst eine Bilddatei auswählen.', true);
-    return;
-  }
-
-  const oldText = button.textContent;
-  button.disabled = true;
-  button.textContent = 'Lade hoch...';
-
-  try {
-    const publicUrl = await uploadImageFile(file, uploadKind);
-    if (urlInput) urlInput.value = publicUrl;
-
-    if (preview) {
-      preview.src = publicUrl;
-      preview.hidden = false;
-    }
-
-    msg('Bild erfolgreich hochgeladen.');
-  } catch (error) {
-    msg(`Bild-Upload fehlgeschlagen: ${error.message}`, true);
-  } finally {
-    button.disabled = false;
-    button.textContent = oldText;
-  }
-}
+/* =========================
+   BOOT
+========================= */
 
 async function boot() {
   const gate = document.querySelector('#admin-gate');
@@ -599,9 +524,7 @@ async function boot() {
   if (!session || !admin) {
     if (gate) gate.hidden = false;
     if (app) app.hidden = true;
-    if (status) {
-      status.innerHTML = `<p>${CONFIG.demoAdminHint}</p><p>Du bist nicht als Admin freigeschaltet.</p>`;
-    }
+    if (status) status.innerHTML = `<p>${CONFIG.demoAdminHint}</p><p>Du bist nicht als Admin freigeschaltet.</p>`;
     return;
   }
 
@@ -614,6 +537,10 @@ async function boot() {
 
 window.addEventListener('DOMContentLoaded', boot);
 
+/* =========================
+   CLICK HANDLER
+========================= */
+
 document.addEventListener('click', async (event) => {
   if (event.target.matches('#logoutBtn')) {
     await logout();
@@ -621,32 +548,29 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
-if (event.target.matches('#saveBrandingBtn')) {
-  try {
-    await saveSection('branding', {
-      logoText: document.querySelector('#branding-logoText')?.value || 'MC',
-      logoImage: document.querySelector('#branding-logoImage')?.value || '',
-      tagline: {
-        de: document.querySelector('#branding-tagline-de')?.value || '',
-        en: document.querySelector('#branding-tagline-en')?.value || '',
-        tr: document.querySelector('#branding-tagline-tr')?.value || ''
+  if (event.target.matches('#saveBrandingBtn')) {
+    try {
+      await saveSection('branding', {
+        logoText: document.querySelector('#branding-logoText')?.value || 'MC',
+        logoImage: document.querySelector('#branding-logoImage')?.value || '',
+        tagline: {
+          de: document.querySelector('#branding-tagline-de')?.value || '',
+          en: document.querySelector('#branding-tagline-en')?.value || '',
+          tr: document.querySelector('#branding-tagline-tr')?.value || ''
+        }
+      });
+
+      const preview = document.querySelector('#branding-logoPreview');
+      if (preview) {
+        const url = document.querySelector('#branding-logoImage')?.value || '';
+        preview.src = url;
+        preview.style.display = url ? 'block' : 'none';
       }
-    });
-    msg('Branding gespeichert.');
-  } catch (error) {
-    msg(`Fehler: ${error.message}`, true);
-  }
-  return;
-}
-  
-    msg('Branding gespeichert.');
-  } catch (error) {
-    msg(`Fehler: ${error.message}`, true);
-  }
-  return;
-}  
-  if (event.target.matches('.upload-image-btn')) {
-    await handleImageUpload(event.target);
+
+      msg('Branding gespeichert.');
+    } catch (error) {
+      msg(`Fehler: ${error.message}`, true);
+    }
     return;
   }
 
@@ -876,8 +800,13 @@ if (event.target.matches('#saveBrandingBtn')) {
     } catch (error) {
       msg(`Fehler: ${error.message}`, true);
     }
+    return;
   }
 });
+
+/* =========================
+   INPUT / CHANGE
+========================= */
 
 document.addEventListener('input', (event) => {
   if (event.target.matches('#branding-logoImage')) {
