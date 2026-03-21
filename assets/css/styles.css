@@ -112,6 +112,12 @@ hr {
   flex-shrink: 0;
 }
 
+.brand-logo-img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+}
+
 .brand-copy {
   display: flex;
   flex-direction: column;
