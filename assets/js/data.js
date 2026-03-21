@@ -54,6 +54,7 @@ function mergeData(map = {}, fallback = {}) {
   return {
     branding: map.branding || fallback.branding || {
       logoText: 'MC',
+      "logoImage": '',
       tagline: {
         de: 'Speisen mit Eleganz',
         en: 'Cuisine with elegance',
