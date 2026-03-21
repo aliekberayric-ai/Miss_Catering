@@ -82,7 +82,11 @@ function renderHeader(data, lang) {
   header.innerHTML = `
     <div class="container nav-shell">
       <a class="brand" href="index.html" aria-label="${escapeHtml(CONFIG.siteName || 'Miss Catering')}">
-        <div class="brand-mark">${escapeHtml(logoText)}</div>
+       <div class="brand-mark">
+         ${logoImage
+           ? `<img src="${escapeHtml(logoImage)}" alt="Logo" class="brand-logo-img">`
+           : escapeHtml(logoText)}
+       </div>
         <div class="brand-copy">
           <strong>${escapeHtml(CONFIG.siteName || 'Miss Catering')}</strong>
           <span>${escapeHtml(tagline)}</span>
