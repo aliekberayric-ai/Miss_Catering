@@ -495,6 +495,14 @@ async function fillFormFields() {
   setValue('#branding-tagline-en', data.branding?.tagline?.en || '');
   setValue('#branding-tagline-tr', data.branding?.tagline?.tr || '');
 
+  setValue('#branding-logoImage', data.branding?.logoImage || '');
+
+const brandingPreview = document.querySelector('#branding-logoPreview');
+if (brandingPreview) {
+  brandingPreview.src = data.branding?.logoImage || '';
+  brandingPreview.style.display = data.branding?.logoImage ? 'block' : 'none';
+}
+
   setValue('#about-de', data.about?.de || '');
   setValue('#about-en', data.about?.en || '');
   setValue('#about-tr', data.about?.tr || '');
