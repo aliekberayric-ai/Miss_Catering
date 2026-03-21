@@ -877,3 +877,13 @@ if (event.target.matches('#saveBrandingBtn')) {
     }
   }
 });
+
+document.addEventListener('input', (event) => {
+  if (event.target.matches('#branding-logoImage')) {
+    const preview = document.querySelector('#branding-logoPreview');
+    if (!preview) return;
+
+    preview.src = event.target.value || '';
+    preview.style.display = event.target.value ? 'block' : 'none';
+  }
+});
