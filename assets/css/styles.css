@@ -113,9 +113,10 @@ hr {
 }
 
 .brand-logo-img {
-  width: 78%;
-  height: 78%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 22px;
 }
 
 .brand-copy {
