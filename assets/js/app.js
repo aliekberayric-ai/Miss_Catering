@@ -73,6 +73,7 @@ function renderHeader(data, lang) {
 
   const branding = data.branding || {};
   const logoText = branding.logoText || 'MC';
+  const logoImage = data.branding?.logoImage || '';
   const tagline =
     branding.tagline?.[lang] ||
     branding.tagline?.de ||
