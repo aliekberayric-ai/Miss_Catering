@@ -1,6 +1,6 @@
 import { getSupabaseClient } from './supabase.js';
 
-const BUCKET = 'SITE-ASSETS';
+const BUCKET = 'site-assests';
 
 function safeFileName(name = 'file') {
   return name
