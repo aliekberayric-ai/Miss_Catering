@@ -2,6 +2,7 @@ import { CONFIG } from './config.js';
 import { getSession, isAdmin, logout } from './auth.js';
 import { getSupabaseClient } from './supabase.js';
 import { loadSiteData, clearSiteDataCache } from './data.js';
+import { uploadImage } from './storage.js';
 
 const STORAGE_BUCKET = 'site-images';
 
