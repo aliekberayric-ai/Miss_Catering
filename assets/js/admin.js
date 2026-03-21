@@ -624,12 +624,20 @@ if (event.target.matches('#saveBrandingBtn')) {
   try {
     await saveSection('branding', {
       logoText: document.querySelector('#branding-logoText')?.value || 'MC',
+      logoImage: document.querySelector('#branding-logoImage')?.value || '',
       tagline: {
         de: document.querySelector('#branding-tagline-de')?.value || '',
         en: document.querySelector('#branding-tagline-en')?.value || '',
         tr: document.querySelector('#branding-tagline-tr')?.value || ''
       }
     });
+    msg('Branding gespeichert.');
+  } catch (error) {
+    msg(`Fehler: ${error.message}`, true);
+  }
+  return;
+}
+  
     msg('Branding gespeichert.');
   } catch (error) {
     msg(`Fehler: ${error.message}`, true);
