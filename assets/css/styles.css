@@ -100,8 +100,10 @@ hr {
 }
 
 .brand-mark {
-  width: 72x;
-  height: 72px;
+  /*width: 72x;
+  height: 72px; */
+  width: 80x;
+  height: auto;
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -952,7 +954,7 @@ textarea {
   }
 
   .brand-mark {
-    width: 80px;
+    width: 48px;
     /* height: 48px; */
      height: auto;
   }
