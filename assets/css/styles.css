@@ -60,6 +60,10 @@ select {
   font-weight: 800;
 }
 
+.formatted-text {
+  white-space: pre-line;
+}
+
 hr {
   border: none;
   border-top: 1px solid rgba(255,255,255,0.12);
