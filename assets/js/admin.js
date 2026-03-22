@@ -54,7 +54,16 @@ function teamCardTemplate(item = {}, index = 0) {
         <input data-field="role-de" type="text" placeholder="Rolle DE" value="${escapeHtml(item.role?.de || '')}">
         <input data-field="role-en" type="text" placeholder="Rolle EN" value="${escapeHtml(item.role?.en || '')}">
         <input data-field="role-tr" type="text" placeholder="Rolle TR" value="${escapeHtml(item.role?.tr || '')}">
+      </div>
+
+      <div class="admin-image-tools">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
       </div>
     </article>
   `;
@@ -77,6 +86,16 @@ function priceCardTemplate(item = {}, index = 0) {
           <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
           <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
         </select>
+      </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
       </div>
     </article>
   `;
@@ -103,6 +122,16 @@ function packageCardTemplate(item = {}, index = 0) {
         <textarea data-field="desc-en" rows="3" placeholder="Beschreibung EN">${escapeHtml(item.description?.en || '')}</textarea>
         <textarea data-field="desc-tr" rows="3" placeholder="Beschreibung TR">${escapeHtml(item.description?.tr || '')}</textarea>
       </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
+      </div>
     </article>
   `;
 }
@@ -125,6 +154,16 @@ function menuItemCardTemplate(item = {}, category = '', index = 0) {
           <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
         </select>
       </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
+      </div>
     </article>
   `;
 }
@@ -140,6 +179,15 @@ function galleryCardTemplate(item = {}, index = 0) {
       <div class="admin-grid">
         <input data-field="title" type="text" placeholder="Titel" value="${escapeHtml(item.title || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
+      </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
       </div>
     </article>
   `;
@@ -175,6 +223,15 @@ function homeCardTemplate(item = {}, index = 0) {
         <input data-field="link" type="text" placeholder="Link, z. B. about.html" value="${escapeHtml(item.link || '')}">
         <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(item.image || '')}">
       </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image-file" type="file" accept="image/*">
+        ${
+          item.image
+            ? `<img class="admin-image-preview" src="${escapeHtml(item.image)}" alt="">`
+            : ''
+        }
+      </div>
     </article>
   `;
 }
@@ -203,7 +260,8 @@ function collectPricesFromDom() {
       tr: card.querySelector('[data-field="title-tr"]')?.value || ''
     },
     price: Number(card.querySelector('[data-field="price"]')?.value || 0),
-    unit: card.querySelector('[data-field="unit"]')?.value || 'person'
+    unit: card.querySelector('[data-field="unit"]')?.value || 'person',
+    image: card.querySelector('[data-field="image"]')?.value || ''
   }));
 }
 
@@ -220,7 +278,8 @@ function collectPackagesFromDom() {
       de: card.querySelector('[data-field="desc-de"]')?.value || '',
       en: card.querySelector('[data-field="desc-en"]')?.value || '',
       tr: card.querySelector('[data-field="desc-tr"]')?.value || ''
-    }
+    },
+    image: card.querySelector('[data-field="image"]')?.value || ''
   }));
 }
 
@@ -243,7 +302,8 @@ function collectMenuFromDom() {
         tr: card.querySelector('[data-field="name-tr"]')?.value || ''
       },
       price: Number(card.querySelector('[data-field="price"]')?.value || 0),
-      unit: card.querySelector('[data-field="unit"]')?.value || 'portion'
+      unit: card.querySelector('[data-field="unit"]')?.value || 'portion',
+      image: card.querySelector('[data-field="image"]')?.value || ''
     });
   });
 
@@ -643,7 +703,12 @@ document.addEventListener('click', async (event) => {
 
   if (event.target.matches('#addPriceBtn')) {
     const current = collectPricesFromDom();
-    current.push({ title: { de: '', en: '', tr: '' }, price: 0, unit: 'person' });
+    current.push({
+      title: { de: '', en: '', tr: '' },
+      price: 0,
+      unit: 'person',
+      image: ''
+    });
     renderPricesEditor(current);
     return;
   }
@@ -669,7 +734,8 @@ document.addEventListener('click', async (event) => {
       slug: '',
       price: 0,
       title: { de: '', en: '', tr: '' },
-      description: { de: '', en: '', tr: '' }
+      description: { de: '', en: '', tr: '' },
+      image: ''
     });
     renderPackagesEditor(current);
     return;
@@ -698,7 +764,8 @@ document.addEventListener('click', async (event) => {
     list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
       name: { de: '', en: '', tr: '' },
       price: 0,
-      unit: 'portion'
+      unit: 'portion',
+      image: ''
     }, category, list.children.length));
     return;
   }
@@ -815,6 +882,26 @@ document.addEventListener('input', (event) => {
 
     preview.src = event.target.value || '';
     preview.style.display = event.target.value ? 'block' : 'none';
+    return;
+  }
+
+  if (event.target.matches('input[data-field="image"]')) {
+    const card = event.target.closest('.admin-edit-card');
+    if (!card) return;
+
+    let preview = card.querySelector('.admin-image-preview');
+
+    if (event.target.value) {
+      if (!preview) {
+        preview = document.createElement('img');
+        preview.className = 'admin-image-preview';
+        preview.alt = '';
+        event.target.closest('.admin-image-tools')?.appendChild(preview);
+      }
+      preview.src = event.target.value;
+    } else if (preview) {
+      preview.remove();
+    }
   }
 });
 
@@ -838,6 +925,45 @@ document.addEventListener('change', async (event) => {
       msg('Logo hochgeladen. Jetzt Branding speichern.');
     } catch (error) {
       msg(`Fehler beim Logo-Upload: ${error.message}`, true);
+    }
+    return;
+  }
+
+  if (event.target.matches('input[data-field="image-file"]')) {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const card = event.target.closest('.admin-edit-card');
+      if (!card) return;
+
+      let folder = 'site';
+
+      if (card.matches('.team-editor-card')) folder = 'team';
+      else if (card.matches('.price-editor-card')) folder = 'prices';
+      else if (card.matches('.package-editor-card')) folder = 'packages';
+      else if (card.matches('.menu-item-editor-card')) folder = 'menu';
+      else if (card.matches('.gallery-editor-card')) folder = 'gallery';
+      else if (card.matches('.home-section-editor-card')) folder = 'home';
+
+      const url = await uploadImage(file, folder);
+
+      const urlInput = card.querySelector('input[data-field="image"]');
+      if (urlInput) urlInput.value = url;
+
+      let preview = card.querySelector('.admin-image-preview');
+      if (!preview) {
+        preview = document.createElement('img');
+        preview.className = 'admin-image-preview';
+        preview.alt = '';
+        event.target.closest('.admin-image-tools')?.appendChild(preview);
+      }
+
+      preview.src = url;
+
+      msg('Bild hochgeladen. Jetzt speichern.');
+    } catch (error) {
+      msg(`Fehler beim Bild-Upload: ${error.message}`, true);
     }
   }
 });
