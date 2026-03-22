@@ -67,7 +67,7 @@ return `
   <label class="builder-option-item">
     <div class="builder-option-left">
 
-     <input
+<input
   type="checkbox"
   class="builder-option-checkbox"
   value="${escapeHtml(name)}"
