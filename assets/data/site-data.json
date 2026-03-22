@@ -35,16 +35,19 @@
       "title": {"de": "Buffet Basic", "en": "Buffet Basic", "tr": "Açık Büfe Basic"},
       "price": 18,
       "unit": "person"
+      "image": ""
     },
     {
       "title": {"de": "Buffet Premium", "en": "Buffet Premium", "tr": "Açık Büfe Premium"},
       "price": 29,
       "unit": "person"
+       "image": ""
     },
     {
       "title": {"de": "Streetfood Teller", "en": "Streetfood Plate", "tr": "Streetfood Tabak"},
       "price": 12,
       "unit": "portion"
+       "image": ""
     }
   ],
   "packages": [
