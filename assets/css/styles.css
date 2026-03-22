@@ -1135,3 +1135,53 @@ textarea {
     height: 36px;
   }
 }
+
+.price-card {
+  overflow: visible;
+}
+
+.price-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.price-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.price-inline-thumb {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.price-inline-thumb img,
+.price-inline-thumb .thumb-placeholder {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.price-inline-thumb img:hover,
+.price-inline-thumb .thumb-placeholder:hover {
+  transform: scale(2);
+  z-index: 30;
+  position: relative;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.35);
+}
+
+.thumb-placeholder {
+  display: block;
+}
