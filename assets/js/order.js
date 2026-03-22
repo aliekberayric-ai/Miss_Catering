@@ -197,7 +197,7 @@ function updateSummary(pkg) {
       return `
         <div class="selected-preview-item">
           <span>${escapeHtml(item.name)}</span>
-          <strong>${money(itemTotal)}</strong>
+          <strong>${money(itemTotal)}</strong> 
         </div>
       `;
     })
