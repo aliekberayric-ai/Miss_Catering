@@ -49,10 +49,20 @@
     function renderMenuItems(items, targetId) {
       const target = document.getElementById(targetId);
       target.innerHTML = (items || []).map(item => `
-        <article class="menu-card">
-          <h3>${pickLang(item.name)}</h3>
-          <p class="menu-price">${money(Number(item.price || 0))} pro ${item.unit || "Portion"}</p>
-        </article>
+
+  <article class="menu-card">
+    <div class="menu-card-thumb">
+      ${
+        item.image
+          ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(name)}">`
+          : `<div class="menu-card-placeholder"></div>`
+      }
+    </div>
+    <h3>${escapeHtml(name)}</h3>
+    <p class="menu-price">${priceText}</p>
+  </article>
+
+        
       `).join("");
     }
 
