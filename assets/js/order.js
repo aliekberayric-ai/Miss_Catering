@@ -167,7 +167,10 @@ function updateSummary(pkg) {
   const baseTotalEl = document.querySelector("#summary-base-total");
   const extrasTotalEl = document.querySelector("#summary-extras-total");
   const grandTotalEl = document.querySelector("#summary-grand-total");
-  const previewEl = document.querySelector("#selected-items-preview");
+
+  const previewEl =
+    document.querySelector("#selected-extras") ||
+    document.querySelector("#selected-items-preview");
 
   if (packageNameEl) packageNameEl.textContent = packageName;
   if (personsEl) personsEl.textContent = String(summary.persons);
@@ -182,13 +185,30 @@ function updateSummary(pkg) {
     return;
   }
 
-  previewEl.innerHTML = summary.checkedItems.map((item) => `
+  previewEl.innerHTML = summary.checkedItems
+    .map((item) => {
+      const itemTotal =
+        item.unit === "person"
+          ? item.price * summary.persons
+          : item.price;
+
+      return `
+        <div class="selected-preview-item">
+          <span>${escapeHtml(item.name)}</span>
+          <strong>${money(itemTotal)}</strong>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+ /* previewEl.innerHTML = summary.checkedItems.map((item) => `
     <div class="selected-preview-item">
       <span>${escapeHtml(item.name)}</span>
       <strong>${money(item.price)} / ${escapeHtml(item.unit)}</strong>
     </div>
   `).join("");
-}
+} */
 
 async function saveOrderToSupabase(pkg) {
   const supabase = getSupabaseClient();
