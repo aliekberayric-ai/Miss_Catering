@@ -60,22 +60,30 @@ function renderOptionItem(item, categoryKey, index) {
   const unit = item.unit || "portion";
 
   return `
-    <label class="builder-option-item" for="${id}">
-      <div class="builder-option-left">
-        <input
-          type="checkbox"
-          id="${id}"
-          class="builder-option-checkbox"
-          data-category="${escapeHtml(categoryKey)}"
-          data-name="${escapeHtml(pickLang(item.name))}"
-          data-price="${price}"
-          data-unit="${escapeHtml(unit)}"
-        >
-        <span>${escapeHtml(pickLang(item.name))}</span>
+  <label class="builder-option-item">
+    <div class="builder-option-left">
+      <input
+        type="checkbox"
+        value="${escapeHtml(name)}"
+        data-price="${Number(item.price || 0)}"
+        data-unit="${escapeHtml(item.unit || 'portion')}"
+        data-name="${escapeHtml(name)}"
+      >
+
+      <div class="builder-option-thumb">
+        ${
+          item.image
+            ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(name)}">`
+            : `<div class="thumb-placeholder"></div>`
+        }
       </div>
-      <strong>${money(price)} / ${escapeHtml(unit)}</strong>
-    </label>
-  `;
+
+      <span class="builder-option-label">${escapeHtml(name)}</span>
+    </div>
+
+    <strong>${priceText}</strong>
+  </label>
+`;
 }
 
 function renderCategory(targetId, items, categoryKey) {
