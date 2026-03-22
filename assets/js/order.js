@@ -147,15 +147,13 @@ function calculateTotals(pkg) {
     }
   }
 
-  const grandTotal = baseTotal + extrasTotal;
-
   return {
     persons,
-    checkedItems,
     basePricePerPerson,
     baseTotal,
     extrasTotal,
-    grandTotal
+    grandTotal: baseTotal + extrasTotal,
+    checkedItems
   };
 }
 
