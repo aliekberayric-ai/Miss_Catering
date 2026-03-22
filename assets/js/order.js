@@ -116,6 +116,20 @@ function getCheckedItems() {
     }));
 }
 
+document.addEventListener("click", (event) => {
+  const option = event.target.closest(".builder-option-item");
+  if (!option) return;
+
+  const input = option.querySelector('input[type="checkbox"]');
+  if (!input) return;
+
+  if (event.target !== input) {
+    event.preventDefault();
+    input.checked = !input.checked;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+});
+
 function calculateTotals(pkg) {
   const persons = getPersonsCount();
   const checkedItems = getCheckedItems();
