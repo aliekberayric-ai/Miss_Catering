@@ -352,7 +352,7 @@ async function boot() {
 
     document.addEventListener("change", (event) => {
       if (
-        event.target.matches('.builder-option-item input‘[type="checkbox") ||
+        event.target.matches('.builder-option-item input‘[type="checkbox"] ||
         event.target.matches("#persons-count")
       ) {
         updateSummary(pkg);
