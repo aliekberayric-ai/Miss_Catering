@@ -972,3 +972,31 @@ textarea {
     width: 100%;
   }
 }
+.builder-option-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.builder-option-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.builder-option-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.02)
+  );
+}
