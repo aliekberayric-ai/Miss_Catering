@@ -239,15 +239,16 @@ function collectMenuFromDom() {
     const category = card.getAttribute('data-category');
     if (!result[category]) return;
 
-    result[category].push({
-      name: {
-        de: card.querySelector('[data-field="name-de"]')?.value || '',
-        en: card.querySelector('[data-field="name-en"]')?.value || '',
-        tr: card.querySelector('[data-field="name-tr"]')?.value || ''
-      },
-      price: Number(card.querySelector('[data-field="price"]')?.value || 0),
-      unit: card.querySelector('[data-field="unit"]')?.value || 'portion'
-    });
+   result[category].push({
+  name: {
+    de: card.querySelector('[data-field="name-de"]').value,
+    en: card.querySelector('[data-field="name-en"]').value,
+    tr: card.querySelector('[data-field="name-tr"]').value
+  },
+  price: Number(card.querySelector('[data-field="price"]').value || 0),
+  unit: card.querySelector('[data-field="unit"]').value,
+  image: card.querySelector('[data-field="image"]').value || ''
+});
   });
 
   return result;
