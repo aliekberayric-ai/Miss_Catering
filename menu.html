@@ -48,12 +48,24 @@
 
     function renderMenuItems(items, targetId) {
       const target = document.getElementById(targetId);
-      target.innerHTML = (items || []).map(item => `
-        <article class="menu-card">
-          <h3>${pickLang(item.name)}</h3>
-          <p class="menu-price">${money(Number(item.price || 0))} pro ${item.unit || "Portion"}</p>
-        </article>
-      `).join("");
+target.innerHTML = (items || []).map(item => `
+  <article class="menu-card">
+    <div class="menu-card-row">
+      <div class="menu-card-text">
+        <h3>${pickLang(item.name)}</h3>
+        <p class="menu-price">${money(Number(item.price || 0))} pro ${item.unit === "person" ? "person" : "portion"}</p>
+      </div>
+
+      <div class="menu-inline-thumb">
+        ${
+          item.image
+            ? `<img src="${item.image}" alt="${pickLang(item.name)}">`
+            : `<div class="thumb-placeholder"></div>`
+        }
+      </div>
+    </div>
+  </article>
+`).join("");
     }
 
     renderMenuItems(catalog.fingerfood, "fingerfood-grid");
