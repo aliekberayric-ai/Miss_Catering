@@ -103,7 +103,7 @@ hr {
 .brand-mark {
   /*width: 72x;
   height: 72px; */
-  width: 100x;
+  width: auto;
   height: 100px;
   border-radius: 18px;
   display: flex;
@@ -118,7 +118,8 @@ hr {
   /* Transparenter Hintergrund */
    background: transparent;
   font-weight: 800;
-  box-shadow: 0 10px 20px rgba(255, 170, 80, 0.22);
+  /* box-shadow: 0 10px 20px rgba(255, 170, 80, 0.22); */
+  box-shadow: none;
   flex-shrink: 0;
 }
 
