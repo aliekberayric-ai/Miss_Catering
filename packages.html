@@ -31,17 +31,31 @@
     const grid = document.getElementById("package-grid");
 
     grid.innerHTML = (data.packages || []).map(pkg => {
-      const price = Number(pkg.price ?? pkg.basePricePerPerson ?? 0);
+  const price = Number(pkg.price ?? pkg.basePricePerPerson ?? 0);
+  const title = pickLang(pkg.title);
+  const description = pickLang(pkg.description);
 
-      return `
-        <article class="package-card">
-          <h3>${pickLang(pkg.title)}</h3>
-          <p>${pickLang(pkg.description)}</p>
+  return `
+    <article class="package-card">
+      <div class="package-card-row">
+        <div class="package-card-left">
+          <h3>${title}</h3>
+          <p>${description}</p>
           <p class="package-price"><strong>${money(price)} pro Person</strong></p>
           <button class="btn btn-primary" onclick="openPackage('${pkg.slug}')">Paket öffnen</button>
-        </article>
-      `;
-    }).join("");
+        </div>
+
+        <div class="package-inline-thumb">
+          ${
+            pkg.image
+              ? `<img src="${pkg.image}" alt="${title}">`
+              : `<div class="thumb-placeholder"></div>`
+          }
+        </div>
+      </div>
+    </article>
+  `;
+}).join("");
 
     window.openPackage = (slug) => {
       window.location.href = `package-detail.html?slug=${encodeURIComponent(slug)}`;
