@@ -104,7 +104,9 @@ function renderCategory(targetId, items, categoryKey) {
 }
 
 function getCheckedItems() {
-  return [...document.querySelectorAll('.builder-option-item input[type="checkbox"]:checked')].map((input) => ({
+  return [
+    ...document.querySelectorAll('.builder-option-item input[type="checkbox"]:checked')
+  ].map((input) => ({
     category: input.dataset.category || "",
     name: input.dataset.name || "",
     price: Number(input.dataset.price || 0),
