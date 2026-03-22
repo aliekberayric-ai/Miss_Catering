@@ -59,7 +59,10 @@ function renderOptionItem(item, categoryKey, index) {
   const price = Number(item.price || 0);
   const unit = item.unit || "portion";
 
-  return `
+ const unitText = item.unit === 'person' ? 'Person' : 'Portion';
+ const priceText = `${Number(item.price || 0).toFixed(2).replace('.', ',')} € / ${unitText}`;
+
+return `
   <label class="builder-option-item">
     <div class="builder-option-left">
       <input
