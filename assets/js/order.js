@@ -105,13 +105,15 @@ function renderCategory(targetId, items, categoryKey) {
 
 function getCheckedItems() {
   return [
-    ...document.querySelectorAll('.builder-option-item input[type="checkbox"]:checked')
-  ].map((input) => ({
-    category: input.dataset.category || "",
-    name: input.dataset.name || "",
-    price: Number(input.dataset.price || 0),
-    unit: input.dataset.unit || "portion"
-  }));
+    ...document.querySelectorAll('.builder-option-item input[type="checkbox"]')
+  ]
+    .filter((input) => input.checked)
+    .map((input) => ({
+      category: input.dataset.category || "",
+      name: input.dataset.name || "",
+      price: Number(input.dataset.price || 0),
+      unit: input.dataset.unit || "portion"
+    }));
 }
 
 function calculateTotals(pkg) {
