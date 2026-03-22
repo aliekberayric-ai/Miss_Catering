@@ -107,9 +107,6 @@ function packageCardTemplate(item = {}, index = 0) {
   `;
 }
 
-function menuItemCardTemplate(item = {}, category = '', index = 0) {
-  return `
-    <article class="admin-edit-card menu-item-editor-card" data-category="${escapeHtml(category)}">
       <div class="admin-card-head">
         <h3>${escapeHtml(item.name?.de || `${category} ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-menu-item-btn">Entfernen</button>
@@ -124,6 +121,12 @@ function menuItemCardTemplate(item = {}, category = '', index = 0) {
           <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
           <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
         </select>
+      </div>
+
+      <div class="admin-image-tools">
+        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(image)}">
+        <input data-field="image-file" type="file" accept="image/*">
+        <img class="admin-image-preview" src="${escapeHtml(image)}" alt="Vorschau" style="${image ? '' : 'display:none;'}">
       </div>
     </article>
   `;
