@@ -91,24 +91,24 @@
   ],
   "catalog": {
     "fingerfood": [
-      {"name": {"de": "Sigara Böreği", "en": "Crispy cheese rolls", "tr": "Sigara Böreği"}, "price": 2.5, "unit": "portion"},
-      {"name": {"de": "Mini Köfte Spieß", "en": "Mini kofte skewer", "tr": "Mini Köfte Şiş"}, "price": 3.5, "unit": "portion"},
-      {"name": {"de": "Falafel Bites", "en": "Falafel bites", "tr": "Falafel"}, "price": 2.8, "unit": "portion"}
+      {"name": {"de": "Sigara Böreği", "en": "Crispy cheese rolls", "tr": "Sigara Böreği"}, "price": 2.5, "unit": "portion", "image": ""},
+      {"name": {"de": "Mini Köfte Spieß", "en": "Mini kofte skewer", "tr": "Mini Köfte Şiş"}, "price": 3.5, "unit": "portion", "image": ""},
+      {"name": {"de": "Falafel Bites", "en": "Falafel bites", "tr": "Falafel"}, "price": 2.8, "unit": "portion", "image": ""}
     ],
     "starters": [
-      {"name": {"de": "Humus", "en": "Hummus", "tr": "Humus"}, "price": 3.5, "unit": "portion"},
-      {"name": {"de": "Haydari", "en": "Haydari", "tr": "Haydari"}, "price": 3.2, "unit": "portion"},
-      {"name": {"de": "Kisir", "en": "Kisir", "tr": "Kısır"}, "price": 3.8, "unit": "portion"}
+      {"name": {"de": "Humus", "en": "Hummus", "tr": "Humus"}, "price": 3.5, "unit": "portion", "image": ""},
+      {"name": {"de": "Haydari", "en": "Haydari", "tr": "Haydari"}, "price": 3.2, "unit": "portion", "image": ""},
+      {"name": {"de": "Kisir", "en": "Kisir", "tr": "Kısır"}, "price": 3.8, "unit": "portion", "image": ""}
     ],
     "mains": [
-      {"name": {"de": "Iskender", "en": "Iskender", "tr": "İskender"}, "price": 12.5, "unit": "person"},
-      {"name": {"de": "Adana Kebab", "en": "Adana kebab", "tr": "Adana Kebap"}, "price": 13.9, "unit": "person"},
-      {"name": {"de": "Vegetarische Dolma", "en": "Vegetarian dolma", "tr": "Vejetaryen Dolma"}, "price": 9.5, "unit": "person"}
+      {"name": {"de": "Iskender", "en": "Iskender", "tr": "İskender"}, "price": 12.5, "unit": "person", "image": ""},
+      {"name": {"de": "Adana Kebab", "en": "Adana kebab", "tr": "Adana Kebap"}, "price": 13.9, "unit": "person", "image": ""},
+      {"name": {"de": "Vegetarische Dolma", "en": "Vegetarian dolma", "tr": "Vejetaryen Dolma"}, "price": 9.5, "unit": "person", "image": ""}
     ],
     "desserts": [
-      {"name": {"de": "Baklava", "en": "Baklava", "tr": "Baklava"}, "price": 4.2, "unit": "portion"},
-      {"name": {"de": "Sütlaç", "en": "Rice pudding", "tr": "Sütlaç"}, "price": 3.9, "unit": "portion"},
-      {"name": {"de": "Künefe", "en": "Kunefe", "tr": "Künefe"}, "price": 5.5, "unit": "portion"}
+      {"name": {"de": "Baklava", "en": "Baklava", "tr": "Baklava"}, "price": 4.2, "unit": "portion", "image": ""},
+      {"name": {"de": "Sütlaç", "en": "Rice pudding", "tr": "Sütlaç"}, "price": 3.9, "unit": "portion", "image": ""},
+      {"name": {"de": "Künefe", "en": "Kunefe", "tr": "Künefe"}, "price": 5.5, "unit": "portion", "image": ""}
     ]
   },
   "gallery": [
