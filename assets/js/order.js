@@ -66,14 +66,16 @@ function renderOptionItem(item, categoryKey, index) {
 return `
   <label class="builder-option-item">
     <div class="builder-option-left">
-      <input
-        type="checkbox"
-        value="${escapeHtml(name)}"
-        data-category="${escapeHtml(categoryKey)}
-        data-price="${Number(item.price || 0)}"
-        data-unit="${escapeHtml(item.unit || 'portion')}"
-        data-name="${escapeHtml(name)}"
-      >
+
+     <input
+  type="checkbox"
+  class="builder-option-checkbox"
+  value="${escapeHtml(name)}"
+  data-category="${escapeHtml(categoryKey)}"
+  data-price="${Number(item.price || 0)}"
+  data-unit="${escapeHtml(item.unit || 'portion')}"
+  data-name="${escapeHtml(name)}"
+>
 
       <div class="builder-option-thumb">
         ${
