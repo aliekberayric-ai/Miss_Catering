@@ -823,6 +823,30 @@ document.addEventListener('input', (event) => {
 });
 
 document.addEventListener('change', async (event) => {
+  if (event.target.matches('#branding-logoFile')) {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const url = await uploadImage(file, 'branding');
+
+      const input = document.querySelector('#branding-logoImage');
+      const preview = document.querySelector('#branding-logoPreview');
+
+      if (input) input.value = url;
+      if (preview) {
+        preview.src = url;
+        preview.style.display = 'block';
+      }
+
+      msg('Logo hochgeladen. Jetzt Branding speichern.');
+    } catch (error) {
+      msg(`Fehler beim Logo-Upload: ${error.message}`, true);
+    }
+  }
+});
+
+document.addEventListener('change', async (event) => {
   if (event.target.matches('.menu-item-editor-card [data-field="image-file"]')) {
     try {
       const file = event.target.files?.[0];
@@ -846,5 +870,18 @@ document.addEventListener('change', async (event) => {
     } catch (error) {
       msg(`Fehler beim Menübild-Upload: ${error.message}`, true);
     }
+  }
+});
+
+document.addEventListener('input', (event) => {
+  if (event.target.matches('.menu-item-editor-card [data-field="image"]')) {
+    const card = event.target.closest('.menu-item-editor-card');
+    if (!card) return;
+
+    const preview = card.querySelector('.admin-image-preview');
+    if (!preview) return;
+
+    preview.src = event.target.value || '';
+    preview.style.display = event.target.value ? 'block' : 'none';
   }
 });
