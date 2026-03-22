@@ -368,13 +368,13 @@ async function boot() {
     updateSummary(pkg);
 
     document.addEventListener("change", (event) => {
-      if (
-        event.target.matches('.builder-option-item input‘[type="checkbox"]') ||
-        event.target.matches("#persons-count")
-      ) {
-        updateSummary(pkg);
-      }
-    });
+  if (
+    event.target.matches('.builder-option-item input[type="checkbox"]') ||
+    event.target.matches("#persons-count")
+  ) {
+    updateSummary(pkg);
+  }
+});
 
     document.querySelector("#save-order-btn")?.addEventListener("click", async () => {
       try {
