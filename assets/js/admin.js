@@ -823,25 +823,28 @@ document.addEventListener('input', (event) => {
 });
 
 document.addEventListener('change', async (event) => {
-  if (event.target.matches('#branding-logoFile')) {
+  if (event.target.matches('.menu-item-editor-card [data-field="image-file"]')) {
     try {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const url = await uploadImage(file, 'branding');
+      const card = event.target.closest('.menu-item-editor-card');
+      if (!card) return;
 
-      const input = document.querySelector('#branding-logoImage');
-      const preview = document.querySelector('#branding-logoPreview');
+      const url = await uploadImage(file, 'menu-items');
 
-      if (input) input.value = url;
+      const imageInput = card.querySelector('[data-field="image"]');
+      const preview = card.querySelector('.admin-image-preview');
+
+      if (imageInput) imageInput.value = url;
       if (preview) {
         preview.src = url;
         preview.style.display = 'block';
       }
 
-      msg('Logo hochgeladen. Jetzt Branding speichern.');
+      msg('Menübild hochgeladen. Jetzt Menü speichern.');
     } catch (error) {
-      msg(`Fehler beim Logo-Upload: ${error.message}`, true);
+      msg(`Fehler beim Menübild-Upload: ${error.message}`, true);
     }
   }
 });
