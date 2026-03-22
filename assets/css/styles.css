@@ -1000,3 +1000,109 @@ textarea {
     rgba(255,255,255,0.02)
   );
 }
+
+/* =========================
+   INLINE THUMBS MENU + BUILDER
+========================= */
+
+.menu-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.menu-card-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-inline-thumb,
+.builder-option-thumb {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.menu-inline-thumb img,
+.builder-option-thumb img,
+.menu-inline-thumb .thumb-placeholder,
+.builder-option-thumb .thumb-placeholder {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  object-fit: cover;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  z-index: 2;
+}
+
+.menu-inline-thumb:hover img,
+.builder-option-thumb:hover img,
+.menu-inline-thumb:hover .thumb-placeholder,
+.builder-option-thumb:hover .thumb-placeholder {
+  transform: scale(2);
+  z-index: 30;
+  box-shadow: 0 18px 34px rgba(0,0,0,0.34);
+}
+
+.menu-inline-thumb img,
+.menu-inline-thumb .thumb-placeholder {
+  transform-origin: right center;
+}
+
+.builder-option-thumb img,
+.builder-option-thumb .thumb-placeholder {
+  transform-origin: left center;
+}
+
+.thumb-placeholder {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+}
+
+.builder-option-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.builder-option-label {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.builder-option-item {
+  overflow: visible;
+}
+
+.menu-card {
+  overflow: visible;
+}
+
+@media (max-width: 700px) {
+  .menu-card-row {
+    gap: 12px;
+  }
+
+  .menu-inline-thumb,
+  .builder-option-thumb {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-inline-thumb img,
+  .builder-option-thumb img,
+  .menu-inline-thumb .thumb-placeholder,
+  .builder-option-thumb .thumb-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+}
