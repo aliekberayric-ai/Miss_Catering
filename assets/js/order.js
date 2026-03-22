@@ -58,6 +58,7 @@ function renderOptionItem(item, categoryKey, index) {
   const id = `${categoryKey}-${index}`;
   const price = Number(item.price || 0);
   const unit = item.unit || "portion";
+  const name = item.name?.de || item.name?.en || item.name?.tr || "";
 
  const unitText = item.unit === 'person' ? 'Person' : 'Portion';
  const priceText = `${Number(item.price || 0).toFixed(2).replace('.', ',')} € / ${unitText}`;
