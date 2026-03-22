@@ -35,7 +35,7 @@ async function loadFromSupabase() {
 
 async function loadJsonFallback() {
   try {
-    const res = await fetch('./assets/data/site-data.json', {
+      const res = await fetch('./assets/data/site-data.json', {
       cache: 'no-store'
     });
 
