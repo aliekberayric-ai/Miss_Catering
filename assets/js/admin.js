@@ -695,15 +695,16 @@ document.addEventListener('click', async (event) => {
   }
 
   if (event.target.matches('.add-menu-item-btn')) {
-    const category = event.target.getAttribute('data-category');
-    const list = document.querySelector(`[data-menu-category="${category}"]`);
-    if (!list) return;
+  const category = event.target.getAttribute('data-category');
+  const list = document.querySelector(`[data-menu-category="${category}"]`);
+  if (!list) return;
 
-    list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
-      name: { de: '', en: '', tr: '' },
-      price: 0,
-      unit: 'portion'
-    }, category, list.children.length));
+  list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
+    name: { de: '', en: '', tr: '' },
+    price: 0,
+    unit: 'portion',
+    image: ''
+  }, category, list.children.length));
     return;
   }
 
