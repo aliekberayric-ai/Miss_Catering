@@ -29,7 +29,7 @@
 
     const data = await loadSiteData();
     document.querySelector("#about-box").innerHTML = `
-      <p>${pickLang(data.about)}</p>
+      <p class="formatted-text">${pickLang(data.about) || ""}</p>
     `;
   </script>
 </body>
