@@ -69,6 +69,7 @@ return `
       <input
         type="checkbox"
         value="${escapeHtml(name)}"
+        data-category="${escapeHtml(categoryKey)}
         data-price="${Number(item.price || 0)}"
         data-unit="${escapeHtml(item.unit || 'portion')}"
         data-name="${escapeHtml(name)}"
