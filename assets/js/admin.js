@@ -107,6 +107,9 @@ function packageCardTemplate(item = {}, index = 0) {
   `;
 }
 
+function menuItemCardTemplate(item = {}, category = '', index = 0) {
+  return `
+    <article class="admin-edit-card menu-item-editor-card" data-category="${escapeHtml(category)}">
       <div class="admin-card-head">
         <h3>${escapeHtml(item.name?.de || `${category} ${index + 1}`)}</h3>
         <button type="button" class="btn btn-secondary remove-menu-item-btn">Entfernen</button>
@@ -121,12 +124,6 @@ function packageCardTemplate(item = {}, index = 0) {
           <option value="person" ${item.unit === 'person' ? 'selected' : ''}>Person</option>
           <option value="portion" ${item.unit === 'portion' ? 'selected' : ''}>Portion</option>
         </select>
-      </div>
-
-      <div class="admin-image-tools">
-        <input data-field="image" type="text" placeholder="Bild-URL" value="${escapeHtml(image)}">
-        <input data-field="image-file" type="file" accept="image/*">
-        <img class="admin-image-preview" src="${escapeHtml(image)}" alt="Vorschau" style="${image ? '' : 'display:none;'}">
       </div>
     </article>
   `;
@@ -239,16 +236,15 @@ function collectMenuFromDom() {
     const category = card.getAttribute('data-category');
     if (!result[category]) return;
 
-   result[category].push({
-  name: {
-    de: card.querySelector('[data-field="name-de"]').value,
-    en: card.querySelector('[data-field="name-en"]').value,
-    tr: card.querySelector('[data-field="name-tr"]').value
-  },
-  price: Number(card.querySelector('[data-field="price"]').value || 0),
-  unit: card.querySelector('[data-field="unit"]').value,
-  image: card.querySelector('[data-field="image"]').value || ''
-});
+    result[category].push({
+      name: {
+        de: card.querySelector('[data-field="name-de"]')?.value || '',
+        en: card.querySelector('[data-field="name-en"]')?.value || '',
+        tr: card.querySelector('[data-field="name-tr"]')?.value || ''
+      },
+      price: Number(card.querySelector('[data-field="price"]')?.value || 0),
+      unit: card.querySelector('[data-field="unit"]')?.value || 'portion'
+    });
   });
 
   return result;
@@ -695,16 +691,15 @@ document.addEventListener('click', async (event) => {
   }
 
   if (event.target.matches('.add-menu-item-btn')) {
-  const category = event.target.getAttribute('data-category');
-  const list = document.querySelector(`[data-menu-category="${category}"]`);
-  if (!list) return;
+    const category = event.target.getAttribute('data-category');
+    const list = document.querySelector(`[data-menu-category="${category}"]`);
+    if (!list) return;
 
-  list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
-    name: { de: '', en: '', tr: '' },
-    price: 0,
-    unit: 'portion',
-    image: ''
-  }, category, list.children.length));
+    list.insertAdjacentHTML('beforeend', menuItemCardTemplate({
+      name: { de: '', en: '', tr: '' },
+      price: 0,
+      unit: 'portion'
+    }, category, list.children.length));
     return;
   }
 
@@ -844,45 +839,5 @@ document.addEventListener('change', async (event) => {
     } catch (error) {
       msg(`Fehler beim Logo-Upload: ${error.message}`, true);
     }
-  }
-});
-
-document.addEventListener('change', async (event) => {
-  if (event.target.matches('.menu-item-editor-card [data-field="image-file"]')) {
-    try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      const card = event.target.closest('.menu-item-editor-card');
-      if (!card) return;
-
-      const url = await uploadImage(file, 'menu-items');
-
-      const imageInput = card.querySelector('[data-field="image"]');
-      const preview = card.querySelector('.admin-image-preview');
-
-      if (imageInput) imageInput.value = url;
-      if (preview) {
-        preview.src = url;
-        preview.style.display = 'block';
-      }
-
-      msg('Menübild hochgeladen. Jetzt Menü speichern.');
-    } catch (error) {
-      msg(`Fehler beim Menübild-Upload: ${error.message}`, true);
-    }
-  }
-});
-
-document.addEventListener('input', (event) => {
-  if (event.target.matches('.menu-item-editor-card [data-field="image"]')) {
-    const card = event.target.closest('.menu-item-editor-card');
-    if (!card) return;
-
-    const preview = card.querySelector('.admin-image-preview');
-    if (!preview) return;
-
-    preview.src = event.target.value || '';
-    preview.style.display = event.target.value ? 'block' : 'none';
   }
 });
