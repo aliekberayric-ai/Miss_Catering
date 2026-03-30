@@ -1161,8 +1161,8 @@ textarea {
 }
 
 .price-inline-thumb {
-  width: 64px;
-  height: 64px;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
   position: relative;
   overflow: visible;
