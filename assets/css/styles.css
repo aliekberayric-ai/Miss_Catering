@@ -1212,8 +1212,8 @@ CSS
 }
 
 .package-inline-thumb {
-  width: 72px;
-  height: 72px;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
   position: relative;
   overflow: visible;
