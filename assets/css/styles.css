@@ -1062,8 +1062,8 @@ textarea {
 .menu-inline-thumb,
 .builder-option-thumb {
   position: relative;
-  width: 60x;
-  height: 60px;
+  width: 42x;
+  height: 42px;
   flex-shrink: 0;
   overflow: visible;
 }
